@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -83,41 +82,29 @@
     <label>Project site address
       <textarea id="address"></textarea>
     </label>
-    <p class="note">Check that this is the jobsite. Some submissions put the contractor's mailing address here.</p>
+    <p class="note">Check that this is the jobsite. Some submissions put the contractor’s mailing address here.</p>
     <label>Warranty recipient
       <textarea id="recipient"></textarea>
     </label>
 
     <h3>Products</h3>
     <div id="products"></div>
-    <label id="showAllLabel" hidden>
-      <input id="showAll" type="checkbox">
-      Show all saved products for manual corrections
-    </label>
+    <label id="showAllLabel" hidden><input id="showAll" type="checkbox"> Show all saved products for manual corrections</label>
     <p class="note">Only products matched to the Jotform appear here after it is read. Review the matches against the original submission; ten products are currently saved.</p>
 
-    <label>
-      <input id="warranty" type="checkbox">
-      Include the template's 25-year sample warranty
-    </label>
+    <label><input id="warranty" type="checkbox"> Include the template’s 25-year sample warranty</label>
     <button id="word">Download Word draft</button>
     <div id="wordStatus" class="status" role="status"></div>
   </section>
 
   <section>
     <h2>3. Assemble the PDF package</h2>
-    <p>Review the draft in Word, add any drawings, then export those pages as one PDF. When you click <strong>Build package</strong>, the builder automatically attaches each selected product's saved TDS and SDS in product order.</p>
+    <p>Review the draft in Word, add any drawings, then export those pages as one PDF. When you click <strong>Build package</strong>, the builder automatically attaches each selected product’s saved TDS and SDS in product order.</p>
     <p class="note">The PDF library lives in the <code>sheets/</code> folder of the published website. GitHub Actions downloads the official files from the catalog's links when the site is updated and refreshes them monthly. No per-package sheet uploads are needed.</p>
     <label for="front">Reviewed project pages and drawings</label>
     <input id="front" type="file" accept=".pdf">
-    <label>
-      <input id="tds" type="checkbox" checked>
-      Include technical data sheets
-    </label>
-    <label>
-      <input id="sds" type="checkbox" checked>
-      Include safety data sheets
-    </label>
+    <label><input id="tds" type="checkbox" checked> Include technical data sheets</label>
+    <label><input id="sds" type="checkbox" checked> Include safety data sheets</label>
     <details id="localDetails">
       <summary>Optional backup: replace a sheet manually if a saved PDF is missing</summary>
       <div id="localSheets"></div>
@@ -137,10 +124,8 @@ const catalog = [
   {
     id: "redgard",
     name: "RedGard® Crack Prevention and Waterproofing Membrane",
-    aliases: [
-      "RedGard Crack Prevention and Waterproofing Membrane",
-      "RedGard Waterproofing and Crack Prevention Membrane"
-    ],
+    aliases: ["RedGard Crack Prevention and Waterproofing Membrane",
+              "RedGard Waterproofing and Crack Prevention Membrane"],
     standard: "ANSI A118.12 and A118.10",
     use: "Crack isolation and waterproofing membrane",
     tds: uploads + "TDS-104-021425.pdf",
@@ -149,10 +134,7 @@ const catalog = [
   {
     id: "prolite",
     name: "ProLite® Premium Large Format Tile Mortar",
-    aliases: [
-      "ProLite Tile & Stone Mortar",
-      "ProLite Premium Large Format Tile Mortar"
-    ],
+    aliases: ["ProLite Tile & Stone Mortar", "ProLite Premium Large Format Tile Mortar"],
     standard: "ANSI A118.4TE, A118.15HET and A118.11",
     use: "Large and heavy tile mortar",
     tds: uploads + "TDS-114-Prolite-011626.pdf",
@@ -161,10 +143,8 @@ const catalog = [
   {
     id: "versabond",
     name: "VersaBond®-LHT Professional Large Format Tile Mortar",
-    aliases: [
-      "VersaBond LHT Large Format Tile Mortar",
-      "VersaBond LHT Professional Large Format Tile Mortar"
-    ],
+    aliases: ["VersaBond LHT Large Format Tile Mortar",
+              "VersaBond LHT Professional Large Format Tile Mortar"],
     standard: "ANSI A118.4HT and A118.11",
     use: "Large format tile mortar",
     tds: uploads + "VersaBond%C2%AE-LHT-Professional-Large-Format-Tile-Mortar-8-12-26.pdf",
@@ -173,9 +153,7 @@ const catalog = [
   {
     id: "polyblend",
     name: "Polyblend® Plus Non-Sanded Grout",
-    aliases: [
-      "Polyblend Plus Non-Sanded Grout"
-    ],
+    aliases: ["Polyblend Plus Non-Sanded Grout"],
     standard: "ANSI A118.6",
     use: "Non-sanded grout",
     tds: base + "product-pdf?id=4637",
@@ -183,10 +161,8 @@ const catalog = [
   },
   {
     id: "aquamix",
-    name: "Aqua Mix® Sealer's Choice® Gold PFAS-Free",
-    aliases: [
-      "Aqua Mix Sealer's Choice Gold PFAS Free"
-    ],
+    name: "Aqua Mix® Sealer’s Choice® Gold PFAS-Free",
+    aliases: ["Aqua Mix Sealer's Choice Gold PFAS Free"],
     standard: "No ANSI performance standard listed in TDS-528",
     use: "Penetrating sealer",
     tds: uploads + "Sealers-Choice-Gold-PFAS-Free-8-21-26.pdf",
@@ -196,8 +172,7 @@ const catalog = [
     id: "crack-buster-pro",
     name: "Crack Buster® Pro Crack Prevention Mat Underlayment",
     aliases: [
-      "Crack Buster Pro Crack Prevention Mat Underlayment",
-      "Crack Buster Pro"
+      "Crack Buster Pro Crack Prevention Mat Underlayment", "Crack Buster Pro"
     ],
     standard: "ANSI A118.12 and A118.13",
     use: "Crack isolation and sound reduction underlayment",
@@ -208,8 +183,7 @@ const catalog = [
     id: "custom-9240",
     name: "Custom® 9240 Waterproofing and Anti-Fracture Membrane",
     aliases: [
-      "Custom 9240 Waterproofing and Anti-Fracture Membrane",
-      "Custom 9240"
+      "Custom 9240 Waterproofing and Anti-Fracture Membrane", "Custom 9240"
     ],
     standard: "ANSI A118.10 and A118.12",
     use: "Waterproofing and crack isolation membrane",
@@ -220,8 +194,7 @@ const catalog = [
     id: "speedslope",
     name: "CUSTOM® SpeedSlope® – Rapid Setting Sloping Mortar",
     aliases: [
-      "SpeedSlope Rapid Setting Sloping Mortar",
-      "SpeedSlope"
+      "SpeedSlope Rapid Setting Sloping Mortar", "SpeedSlope"
     ],
     standard: "ANSI A108.1",
     use: "Rapid-setting mortar for forming slopes",
@@ -231,6 +204,7 @@ const catalog = [
 ];
 
 // Additional products: CustomFloat and EasyMat.
+// Keep these after the catalog array closes, but before product checkboxes are created.
 catalog.push(
   {
     id: "customfloat",
@@ -267,7 +241,7 @@ for (const p of catalog) {
   const check = document.createElement("input");
   check.type = "checkbox";
   check.id = "pick-" + p.id;
-  label.hidden = true;
+  label.hidden = true; // Wait for Jotform matching before displaying products.
   label.append(check, " " + p.name);
   $("products").append(label);
 
@@ -277,7 +251,7 @@ for (const p of catalog) {
     file.type = "file";
     file.accept = ".pdf";
     file.id = p.id + "-" + kind;
-    line.hidden = true;
+    line.hidden = true; // Display sheet upload fields for selected products only.
     const link = document.createElement("a");
     link.href = p[kind];
     link.target = "_blank";
@@ -288,33 +262,25 @@ for (const p of catalog) {
   }
 }
 
-const selected = () =>
-  catalog.filter(p => $("pick-" + p.id).checked);
+const selected = () => catalog.filter(p => $("pick-" + p.id).checked);
 
 function refreshProductVisibility() {
   const showAll = $("showAll").checked;
   for (const p of catalog) {
     const check = $("pick-" + p.id);
-    check.parentElement.hidden =
-      !showAll && check.dataset.matched !== "true";
+    check.parentElement.hidden = !showAll && check.dataset.matched !== "true";
     for (const kind of ["tds", "sds"]) {
       $(p.id + "-" + kind).parentElement.hidden = !check.checked;
     }
   }
 }
-
 $("showAll").addEventListener("change", refreshProductVisibility);
 for (const p of catalog) {
   $("pick-" + p.id).addEventListener("change", refreshProductVisibility);
 }
-
-const norm = s =>
-  s.toLowerCase().replace(/[^a-z0-9]/g, "");
-
-const filename = () =>
-  (value("project") || "CBP Project")
-    .replace(/[<>:"/\\|?*\x00-\x1f]/g, " ")
-    .slice(0, 110);
+const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+const filename = () => (value("project") || "CBP Project")
+  .replace(/[<>:"/\\|?*\x00-\x1f]/g, " ").slice(0, 110);
 
 function download(blob, name) {
   const url = URL.createObjectURL(blob);
@@ -342,469 +308,298 @@ function action(button, status, work) {
 async function readPdf(file) {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-  const pdf = await pdfjsLib.getDocument({
-    data: await file.arrayBuffer()
-  }).promise;
-
+  const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
   const lines = [];
-
   for (let n = 1; n <= pdf.numPages; n++) {
     const page = await pdf.getPage(n);
     const content = await page.getTextContent();
     const rows = [];
-
     for (const item of content.items) {
       if (!item.str || !item.str.trim()) continue;
       const y = item.transform[5];
       let row = rows.find(r => Math.abs(r.y - y) < 2.5);
       if (!row) {
-        row = { y, items: [] };
+        row = {y, items: []};
         rows.push(row);
       }
-      row.items.push({
-        x: item.transform[4],
-        text: item.str.trim()
-      });
+      row.items.push({ x: item.transform[4], text: item.str.trim() });
     }
-
-    rows.sort((a, b) => b.y - a.y);
+    rows.sort((a,b) => b.y - a.y);
     for (const row of rows) {
-      row.items.sort((a, b) => a.x - b.x);
+      row.items.sort((a,b) => a.x - b.x);
       lines.push(row.items.map(i => i.text).join(" "));
     }
   }
-
   await pdf.destroy();
   return lines.join("\n");
 }
 
 action("read", "readStatus", async () => {
   const file = $("requestFile").files[0];
-  if (!file)
-    throw Error("Choose the completed Jotform PDF first.");
-
+  if (!file) throw Error("Choose the completed Jotform PDF first.");
   const text = await readPdf(file);
-
-  if (text.trim().length < 40)
-    throw Error("Use the searchable PDF exported by Jotform.");
-
+  if (text.trim().length < 40) throw Error("Use the searchable PDF exported by Jotform.");
   $("source").textContent = text;
 
-  function first(regex) {
-    return (text.match(regex)?.[1] || "").trim();
+  // Jotform may put a field value on the same line as its label,
+  // on the next line, or across several lines. Don't assume one layout.
+  const lines = text.replace(/\r/g, "").replace(/[‘’]/g, "'")
+    .split("\n").map(line => line.trim()).filter(Boolean);
+
+  const fieldRules = [
+    { id: "rep", names: [/^Your Name\b/i, /^Submitter'?s? Name\b/i,
+      /^Sales Representative(?: Name)?\b/i], max: 2 },
+    { id: "email", names: [/^Your Email Address\b/i, /^Submitter'?s? Email(?: Address)?\b/i,
+      /^Email Address\b/i], max: 1 },
+    { id: "phone", names: [/^Submitter'?s? Phone Number\b/i,
+      /^Your Phone(?: Number)?\b/i, /^Phone Number\b/i], max: 1 },
+    { id: "project", names: [/^Project Name\b/i, /^Name of Project\b/i], max: 2 },
+    { id: "address", names: [/^Project (?:Site )?Address\b/i,
+      /^Job\s*site Address\b/i], max: 6 },
+    { id: "application", names: [/^Application(?:\s*\([^)]*\))?/i,
+      /^Application Type\b/i], max: 4 },
+    { id: "term", names: [/^Warranty Term Requested(?:\s*\([^)]*\))?/i,
+      /^Requested Warranty Term\b/i], max: 1 },
+    { id: "recipient", names: [/^Warranty Recipient(?:\s*-\s*(?!Email\b))?/i], max: 5 }
+  ];
+
+  // Other Jotform section headings signal the end of a previous answer.
+  const otherSection = /^(?:Owner Information|General Contractor Information|Architect(?: Firm| Information)?|Surface Preparation Products|Setting Materials|Grout(?:s|ing)? Products|Waterproofing Products|Non-Custom Products in the Assembly|Warranty Recipient\s*-\s*Email|Additional (?:Comments|Information)|Project Details|Signature|Submitted At|Submission ID)\b/i;
+
+  function identify(line) {
+    if (/^Warranty Recipient\s*-\s*Email\b/i.test(line)) return null;
+    for (const rule of fieldRules) {
+      for (const pattern of rule.names) {
+        const match = line.match(pattern);
+        if (match) {
+          return {
+            rule,
+            rest: line.slice(match[0].length)
+              .replace(/^[\s:*\-–—]+/, "").trim()
+          };
+        }
+      }
+    }
+    return null;
   }
 
-  $("rep").value =
-    first(/^Your Name[ \t]+(.+)$/im);
+  function getAnswer(id) {
+    const rule = fieldRules.find(item => item.id === id);
+    for (let i = 0; i < lines.length; i++) {
+      const found = identify(lines[i]);
+      if (!found || found.rule.id !== id) continue;
 
-  $("email").value =
-    first(/^Your Email Address[ \t]+(.+)$/im);
+      const answer = [];
+      const firstValue = (id === "recipient" && /^(?:Name|Full Name|Company|Company Name|Address):?$/i.test(found.rest))
+        ? "" : found.rest;
+      if (firstValue && !/^\*+$/.test(firstValue)) answer.push(firstValue);
+      for (let j = i + 1; j < lines.length && answer.length < rule.max; j++) {
+        const line = lines[j];
+        if (identify(line) || otherSection.test(line)) break;
+        if (/^Page \d+(?: of \d+)?$/i.test(line)) continue;
+        answer.push(line);
+      }
+      const result = answer.join(rule.max > 1 ? "\n" : " ").trim();
+      if (result) return result;
+    }
+    return "";
+  }
 
-  $("phone").value =
-    first(/^Submitter['’]s Phone Number[ \t]+(.+)$/im);
-
-  $("project").value =
-    first(/^Project Name\s*\n([\s\S]*?)(?=\nProject Address)/im)
-      .replace(/\s+/g, " ");
-
-  $("address").value =
-    first(/^Project Address[^\n]*\n([\s\S]*?)(?=\n(?:Owner Information|General Contractor Information|Architect Firm))/im);
-
-  $("application").value =
-    first(/^Application\s*\(Check all that apply\)[ \t]+(.+)$/im);
-
-  $("term").value =
-    first(/^Warranty Term Requested \(Years\)[ \t]+(\d+)/im);
-
-  $("recipient").value =
-    first(/^Warranty Recipient\s*-\s*\n[^\n]*\n([\s\S]*?)(?=\nWarranty Recipient\s*-\s*Email)/im)
-      .replace(/^\s*\d{1,2}\s*$/gm, "")
-      .trim();
-
+  for (const id of ["rep", "email", "phone", "project", "address", "application", "term", "recipient"]) {
+    $(id).value = getAnswer(id);
+  }
+  $("project").value = value("project").replace(/\s+/g, " ");
+  $("term").value = (value("term").match(/\d+/) || [""])[0];
   $("warranty").checked = value("term") === "25";
 
   const start = text.search(/Surface Preparation Products/i);
   const end = text.search(/Non-Custom Products in the Assembly/i);
-
-  const productText = norm(
-    text.slice(
-      start >= 0 ? start : 0,
-      end >= 0 ? end : undefined
-    )
-  );
-
+  const productText = norm(text.slice(start >= 0 ? start : 0, end >= 0 ? end : undefined));
   for (const p of catalog) {
     const matched = [p.name, ...p.aliases]
       .some(alias => productText.includes(norm(alias)));
-
     const check = $("pick-" + p.id);
     check.checked = matched;
     check.dataset.matched = String(matched);
-
-    for (const k of ["tds", "sds"]) {
-      $(p.id + "-" + k).value = "";
-    }
+    for (const k of ["tds", "sds"]) $(p.id + "-" + k).value = "";
   }
-
   $("showAllLabel").hidden = false;
   $("showAll").checked = false;
   refreshProductVisibility();
   $("front").value = "";
-
   const count = selected().length;
-
-  if (!count)
-    return "Jotform read, but no saved products matched. Check the original submission or select Show all saved products for manual corrections.";
-
-  return `Jotform read. ${count} saved product${count === 1 ? "" : "s"} matched and displayed below. Review before building your draft.`;
+  if (!count) return "Jotform read, but no saved products matched. Check the original submission or select Show all saved products for manual corrections.";
+  const missing = ["project", "application", "rep", "email", "phone", "term", "address", "recipient"]
+    .filter(id => !value(id));
+  const note = missing.length
+    ? "\nCould not auto-fill: " + missing.join(", ") + ". Open 'Read the original submission text' to inspect the PDF labels."
+    : "\nAll eight project-information fields were extracted.";
+  return `Jotform read. ${count} saved product${count === 1 ? "" : "s"} matched and displayed below. Review before building your draft.` + note;
 });
 
-// Word template support
-const W =
-  "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
-
+// These changes target the supplied "blank 1 submittal.docx" layout.
+const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 function children(node, name) {
-  return [...node.children].filter(
-    e => e.namespaceURI === W && e.localName === name
-  );
+  return [...node.children].filter(e => e.namespaceURI === W && e.localName === name);
 }
-
-function newW(doc, name) {
-  return doc.createElementNS(W, "w:" + name);
-}
-
+function newW(doc, name) { return doc.createElementNS(W, "w:" + name); }
 function setParagraph(p, text) {
   const doc = p.ownerDocument;
-  const oldProps =
-    p.getElementsByTagNameNS(W, "rPr")[0]?.cloneNode(true);
-
+  const oldProps = p.getElementsByTagNameNS(W, "rPr")[0]?.cloneNode(true);
   for (const child of [...p.children]) {
     if (child.localName !== "pPr") child.remove();
   }
-
   const run = newW(doc, "r");
   if (oldProps) run.append(oldProps);
-
   String(text).split("\n").forEach((line, i) => {
     if (i) run.append(newW(doc, "br"));
-
     const t = newW(doc, "t");
-    t.setAttributeNS(
-      "http://www.w3.org/XML/1998/namespace",
-      "xml:space",
-      "preserve"
-    );
+    t.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space", "preserve");
     t.textContent = line;
     run.append(t);
   });
-
   p.append(run);
 }
-
 function setCell(cell, text) {
   const ps = children(cell, "p");
-  const p = ps.shift() ||
-    cell.appendChild(newW(cell.ownerDocument, "p"));
-
+  const p = ps.shift() || cell.appendChild(newW(cell.ownerDocument, "p"));
   ps.forEach(other => other.remove());
   setParagraph(p, text);
 }
-
 function paragraphText(p) {
-  return [...p.getElementsByTagNameNS(W, "t")]
-    .map(t => t.textContent)
-    .join("");
+  return [...p.getElementsByTagNameNS(W, "t")].map(t => t.textContent).join("");
 }
 
 action("word", "wordStatus", async () => {
   const template = $("templateFile").files[0];
-
-  if (!template)
-    throw Error("Choose the blank CBP Word template in step 1.");
-
-  if (!value("project"))
-    throw Error("Enter the project name.");
-
+  if (!template) throw Error("Choose the blank CBP Word template in step 1.");
+  if (!value("project")) throw Error("Enter the project name.");
   const picks = selected();
-
-  if (!picks.length)
-    throw Error("Select at least one product.");
-
+  if (!picks.length) throw Error("Select at least one product.");
   if ($("warranty").checked && value("term") !== "25")
     throw Error("The supplied sample warranty is for 25 years. Review the requested term.");
 
   const zip = new PizZip(await template.arrayBuffer());
   const xml = zip.file("word/document.xml")?.asText();
-
-  if (!xml)
-    throw Error("Choose a .docx Word file.");
-
-  const doc = new DOMParser().parseFromString(
-    xml,
-    "application/xml"
-  );
-
+  if (!xml) throw Error("Choose a .docx Word file.");
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
   const body = doc.getElementsByTagNameNS(W, "body")[0];
   const ps = children(body, "p");
   const tables = children(body, "tbl");
+  if (tables.length !== 3 || !ps[19] || !/^Project:/i.test(paragraphText(ps[19]))
+      || !/^RE:/i.test(paragraphText(ps[20])))
+    throw Error("This version expects the original blank 1 submittal.docx layout.");
 
-  if (
-    tables.length !== 3 ||
-    !ps[19] ||
-    !/^Project:/i.test(paragraphText(ps[19])) ||
-    !/^RE:/i.test(paragraphText(ps[20]))
-  ) {
-    throw Error(
-      "This version expects the original blank 1 submittal.docx layout."
-    );
-  }
-
-  setParagraph(
-    ps[6],
-    [
-      "SUGGESTED PRODUCT SYSTEMS SUBMITTAL",
-      value("project").toUpperCase(),
-      value("address"),
-      "Review draft"
-    ].filter(Boolean).join("\n")
-  );
+  setParagraph(ps[6], [
+    "SUGGESTED PRODUCT SYSTEMS SUBMITTAL",
+    value("project").toUpperCase(),
+    value("address"),
+    "Review draft"
+  ].filter(Boolean).join("\n"));
 
   const contactRows = children(tables[0], "tr");
-
-  [value("rep"), value("email"), value("phone")]
-    .forEach((v, i) =>
-      setCell(children(contactRows[i], "tc")[0], v)
-    );
+  [value("rep"), value("email"), value("phone")].forEach((v,i) =>
+    setCell(children(contactRows[i], "tc")[0], v));
 
   let props = children(ps[9], "pPr")[0];
-
-  if (!props)
-    ps[9].prepend(props = newW(doc, "pPr"));
-
+  if (!props) ps[9].prepend(props = newW(doc, "pPr"));
   let space = children(props, "spacing")[0];
-
-  if (!space)
-    props.append(space = newW(doc, "spacing"));
-
+  if (!space) props.append(space = newW(doc, "spacing"));
   space.setAttributeNS(W, "w:before", "300");
 
-  const kinds = ["tds", "sds"]
-    .filter(k => $(k).checked);
-
-  const contents = [
-    "Suggested installation system and project reference"
-  ];
-
-  if ($("warranty").checked)
-    contents.push("Sample warranty");
-
-  if (kinds.length)
-    contents.push(
-      "Product documentation: " +
-      kinds.map(k => k.toUpperCase()).join(" and ")
-    );
-
+  const kinds = ["tds", "sds"].filter(k => $(k).checked);
+  const contents = ["Suggested installation system and project reference"];
+  if ($("warranty").checked) contents.push("Sample warranty");
+  if (kinds.length) contents.push("Product documentation: " + kinds.map(k => k.toUpperCase()).join(" and "));
   setParagraph(ps[10], contents.join("\n"));
   setParagraph(ps[19], "Project: " + value("project"));
   setParagraph(ps[20], "RE: " + value("application"));
-
-  setParagraph(
-    ps[26],
-    value("term")
-      ? "Requested warranty term: " + value("term") + " years."
-      : ""
-  );
-
-  setParagraph(
-    ps[31],
-    paragraphText(ps[31]).replace(/8\/2026\s*$/, "")
-  );
+  setParagraph(ps[26], value("term") ? "Requested warranty term: " + value("term") + " years." : "");
+  setParagraph(ps[31], paragraphText(ps[31]).replace(/8\/2026\s*$/, ""));
 
   const productRows = children(tables[1], "tr");
   const model = productRows[1].cloneNode(true);
-
   productRows.slice(1).forEach(r => r.remove());
-
   for (const p of picks) {
     const row = model.cloneNode(true);
     const cells = children(row, "tc");
-
-    [p.name, p.standard, p.use]
-      .forEach((v, i) => setCell(cells[i], v));
-
+    [p.name, p.standard, p.use].forEach((v,i) => setCell(cells[i], v));
     tables[1].append(row);
   }
 
   if ($("warranty").checked) {
     const rows = children(tables[2], "tr");
     const info = children(rows[1], "tc");
-
-    setCell(
-      info[0],
-      new Date().toLocaleDateString("en-US")
-    );
-
-    setCell(
-      info[1],
-      [value("project"), value("address")]
-        .filter(Boolean).join("\n")
-    );
-
-    setCell(
-      info[info.length - 1],
-      value("recipient")
-    );
-
-    setCell(
-      children(rows[2], "tc")[0],
-      "Products submitted for review:\n" +
-      picks.map(p => p.name).join("\n")
-    );
+    setCell(info[0], new Date().toLocaleDateString("en-US"));
+    setCell(info[1], [value("project"), value("address")].filter(Boolean).join("\n"));
+    setCell(info[info.length - 1], value("recipient"));
+    setCell(children(rows[2], "tc")[0],
+      "Products submitted for review:\n" + picks.map(p => p.name).join("\n"));
   } else {
     let node = ps[32];
-
     while (node) {
       const next = node.nextElementSibling;
-
-      if (node.localName !== "sectPr")
-        node.remove();
-
+      if (node.localName !== "sectPr") node.remove();
       node = next;
     }
   }
-
-  zip.file(
-    "word/document.xml",
-    new XMLSerializer().serializeToString(doc)
-  );
-
-  download(
-    zip.generate({
-      type: "blob",
-      mimeType:
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    }),
-    filename() + " Draft.docx"
-  );
-
+  zip.file("word/document.xml", new XMLSerializer().serializeToString(doc));
+  download(zip.generate({
+    type: "blob",
+    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  }), filename() + " Draft.docx");
   return "Word draft downloaded. Review the draft and export your project pages as a PDF for step 3.";
 });
 
-// Automatically assemble PDF package
 action("build", "pdfStatus", async () => {
   const frontFile = $("front").files[0];
-
-  if (!frontFile)
-    throw Error("Choose the reviewed front-pages PDF first.");
-
+  if (!frontFile) throw Error("Choose the reviewed front-pages PDF first.");
   const picks = selected();
-
-  const kinds = ["tds", "sds"]
-    .filter(k => $(k).checked);
-
-  if (!picks.length || !kinds.length)
-    throw Error("Choose products and at least one sheet type.");
-
+  const kinds = ["tds","sds"].filter(k => $(k).checked);
+  if (!picks.length || !kinds.length) throw Error("Choose products and at least one sheet type.");
   const out = await PDFLib.PDFDocument.create();
-
   async function append(bytes) {
     const src = await PDFLib.PDFDocument.load(bytes);
-    const pages = await out.copyPages(
-      src,
-      src.getPageIndices()
-    );
+    const pages = await out.copyPages(src, src.getPageIndices());
     pages.forEach(p => out.addPage(p));
   }
-
   await append(await frontFile.arrayBuffer());
-
   const ranges = [];
-
   for (const product of picks) {
     for (const kind of kinds) {
-      const title =
-        product.name + " " + kind.toUpperCase();
-
-      $("pdfStatus").textContent =
-        "Adding " + title + "…";
-
-      // Optional manual override.
-      // Normally documents are loaded from GitHub Pages.
-      const local =
-        $(product.id + "-" + kind).files[0];
-
-      const cachedPath =
-        "./sheets/" + product.id + "-" + kind + ".pdf";
-
+      const title = product.name + " " + kind.toUpperCase();
+      $("pdfStatus").textContent = "Adding " + title + "…";
+      // A manual file is an optional override. Normally PDFs are served from
+      // this GitHub Pages site (same origin), avoiding manufacturer CORS issues.
+      const local = $(product.id + "-" + kind).files[0];
+      const cachedPath = "./sheets/" + product.id + "-" + kind + ".pdf";
       try {
         let bytes;
-
         if (local) {
           bytes = await local.arrayBuffer();
         } else {
-          const response = await fetch(
-            cachedPath,
-            { cache: "no-store" }
-          );
-
-          if (!response.ok) {
-            throw Error(
-              "Saved PDF not available (HTTP " +
-              response.status + ")"
-            );
-          }
-
+          const response = await fetch(cachedPath, {cache: "no-store"});
+          if (!response.ok) throw Error("Saved PDF not available (HTTP " + response.status + ")");
           bytes = await response.arrayBuffer();
         }
-
-        const magic = String.fromCharCode(
-          ...new Uint8Array(bytes.slice(0, 5))
-        );
-
-        if (magic !== "%PDF-")
-          throw Error("The saved file is not a PDF");
-
+        // A 200 OK can still be an HTML fallback page; reject that explicitly.
+        const magic = String.fromCharCode(...new Uint8Array(bytes.slice(0, 5)));
+        if (magic !== "%PDF-") throw Error("The saved file is not a PDF");
         const start = out.getPageCount() + 1;
-
         await append(bytes);
-
-        ranges.push(
-          title + ": pages " +
-          start + "–" + out.getPageCount()
-        );
-
+        ranges.push(title + ": pages " + start + "–" + out.getPageCount());
       } catch (err) {
         $("localDetails").open = true;
-
-        throw Error(
-          "Could not attach " + title +
-          " automatically: " +
-          (err.message || String(err)) +
-          ". The site needs '" + cachedPath +
-          "'. Check the GitHub Actions " +
-          "'Sync product PDFs' run and the sheets folder. " +
-          "As a temporary backup, open the official PDF " +
-          "below and choose the saved file manually."
-        );
+        throw Error("Could not attach " + title + " automatically: " +
+          (err.message || String(err)) + ". The site needs '" + cachedPath +
+          "'. Check the GitHub Actions 'Sync product PDFs' run and the sheets folder. " +
+          "As a temporary backup, open the official PDF below and choose the saved file manually.");
       }
     }
   }
-
-  download(
-    new Blob(
-      [await out.save()],
-      { type: "application/pdf" }
-    ),
-    filename() + " Submittal Package.pdf"
-  );
-
-  return (
-    "Package downloaded · " +
-    out.getPageCount() +
-    " pages\n\n" +
-    ranges.join("\n")
-  );
+  download(new Blob([await out.save()], {type:"application/pdf"}),
+    filename() + " Submittal Package.pdf");
+  return "Package downloaded · " + out.getPageCount() + " pages\n\n" + ranges.join("\n");
 });
 </script>
 </body>
