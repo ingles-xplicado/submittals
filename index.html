@@ -99,7 +99,7 @@
 
   <section>
     <h2>3. Assemble the PDF package</h2>
-    <p>Review the draft in Word, add any drawings, then export those pages as one PDF. When you click <strong>Build package</strong>, the builder automatically attaches each selected product’s saved TDS and SDS in product order.</p>
+    <p>Review the draft in Word (it now contains reserved page-index rows), add any drawings, then export those pages as one PDF. When you click <strong>Build package</strong>, the builder automatically attaches each selected product’s saved TDS and SDS in product order.</p>
     <p class="note">The PDF library lives in the <code>sheets/</code> folder of the published website. GitHub Actions downloads the official files from the catalog's links when the site is updated and refreshes them monthly. No per-package sheet uploads are needed.</p>
     <label for="front">Reviewed project pages and drawings</label>
     <input id="front" type="file" accept=".pdf">
@@ -111,7 +111,7 @@
         <input id="warrantyEndPage" type="number" min="1" step="1" value="3">
       </label>
     </div>
-    <p class="note">These numbers refer to your reviewed PDF, starting with the cover as page 1. The builder counts all remaining reviewed pages as method details, then calculates the TDS/SDS page range automatically. For a two-page system plus one warranty page, leave 2 and 3.</p>
+    <p class="note">These numbers refer to your reviewed PDF, starting with the cover as page 1. The builder counts all remaining reviewed pages as method details, then calculates the TDS/SDS page range automatically. Use a newly generated Word draft with this version so the index rows have dedicated space. For a two-page system plus one warranty page, leave 2 and 3.</p>
     <label><input id="tds" type="checkbox" checked> Include technical data sheets</label>
     <label><input id="sds" type="checkbox" checked> Include safety data sheets</label>
     <details id="localDetails">
@@ -1376,12 +1376,22 @@ action("word", "wordStatus", async () => {
   styleWordParagraph(ps[9], { size: 22, left: 540, right: 504, line: 270 });
 
   const kinds = ["tds", "sds"].filter(k => $(k).checked);
-  const contents = ["Suggested installation system and project reference"];
-  if ($("warranty").checked) contents.push("Sample warranty");
-  if (kinds.length) contents.push("Product documentation: " + kinds.map(k => k.toUpperCase()).join(" and "));
+  // These are the real, dedicated index rows in the Word draft. Their
+  // right-hand side stays empty until the final PDF knows the page ranges.
+  const contents = ["Suggested Installation System & Project Reference"];
+  if ($("warranty").checked) contents.push("Sample Warranty");
+  contents.push("Suggested Method Details");
+  contents.push($('tds').checked && $('sds').checked ? "Product Data Sheets & SDS"
+    : $('tds').checked ? "Product Data Sheets (TDS)" : "Safety Data Sheets (SDS)");
   setParagraph(ps[10], contents.join("\n"));
-  // Align every package-list line with the heading inside the page border.
-  styleWordParagraph(ps[10], { size: 22, left: 540, right: 504, line: 280 });
+  // Right indent permanently reserves room for page numbers. Word lays out
+  // the NOTE naturally below these four rows; no PDF erasure is required.
+  styleWordParagraph(ps[10], { size: 20, left: 540, right: 1400, line: 285 });
+  // An extra gap after the index keeps the NOTE visually separate.
+  const indexProps = children(ps[10], "pPr")[0];
+  let indexSpacing = children(indexProps, "spacing")[0];
+  if (!indexSpacing) indexProps.append(indexSpacing = newW(doc, "spacing"));
+  indexSpacing.setAttributeNS(W, "w:after", "160");
   setParagraph(ps[19], "Project: " + value("project"));
   setParagraph(ps[20], "RE: " + value("application"));
   setParagraph(ps[26], value("term") ? "Requested warranty term: " + value("term") + " years." : "");
@@ -1511,9 +1521,10 @@ action("build", "pdfStatus", async () => {
   if (hasWarranty) {
     contents.push({ label: "Sample Warranty", pages: pageRange(systemEnd + 1, warrantyEnd) });
   }
-  if (frontPages > warrantyEnd) {
-    contents.push({ label: "Suggested Method Details", pages: pageRange(warrantyEnd + 1, frontPages) });
-  }
+  contents.push({
+    label: "Suggested Method Details",
+    pages: frontPages > warrantyEnd ? pageRange(warrantyEnd + 1, frontPages) : "Not included"
+  });
   contents.push({
     label: $("tds").checked && $("sds").checked ? "Product Data Sheets & SDS" :
       $("tds").checked ? "Product Data Sheets (TDS)" : "Safety Data Sheets (SDS)",
@@ -1526,59 +1537,60 @@ action("build", "pdfStatus", async () => {
     const sourcePdf = await pdfjsLib.getDocument({
       data: new Uint8Array(frontSourceBytes.slice(0))
     }).promise;
-    let positions;
+    let lines;
     try {
       const firstPage = await sourcePdf.getPage(1);
-      const items = (await firstPage.getTextContent()).items.filter(item => item.str);
-      const heading = items.find(item => /this package includes/i.test(item.str));
-      const nextParagraph = items.find(item => /^\s*NOTE\s*:/i.test(item.str)) ||
-        items.find(item => /as a courtesy to our customers/i.test(item.str));
-      if (!heading || !nextParagraph) {
-        throw Error("Could not locate the 'This package includes' section on page 1. " +
-          "Use a front-pages PDF exported from the CUSTOM Word template.");
+      const items = (await firstPage.getTextContent()).items
+        .filter(item => item.str && item.str.trim());
+      // PDF exporters can split a Word paragraph into multiple text items.
+      // Group by baseline so every index row is identified reliably.
+      lines = [];
+      for (const item of items) {
+        const y = item.transform[5];
+        let line = lines.find(line => Math.abs(line.y - y) < 2);
+        if (!line) { line = { y, items: [] }; lines.push(line); }
+        line.items.push(item);
       }
-      positions = {
-        x: heading.transform[4],
-        headingY: heading.transform[5],
-        noteY: nextParagraph.transform[5]
-      };
+      for (const line of lines) {
+        line.items.sort((a, b) => a.transform[4] - b.transform[4]);
+        line.text = line.items.map(item => item.str).join(" ")
+          .replace(/\s+/g, " ").trim();
+        line.x = Math.min(...line.items.map(item => item.transform[4]));
+        line.endX = Math.max(...line.items.map(item => item.transform[4] + item.width));
+      }
     } finally {
       await sourcePdf.destroy();
     }
 
-    // Paint only the old package-list lines, preserving the heading and NOTE.
+    // Place ONLY the page ranges in the right-hand space reserved in Word.
+    // Unlike the old method, this never covers content or depends on
+    // the distance from the index heading to the NOTE paragraph.
     const cover = out.getPages()[0];
-    const { x, headingY, noteY } = positions;
-    if (headingY - noteY < 60) {
-      throw Error("The cover has too little space between the package list and NOTE " +
-        "for automatic page references. Check the reviewed PDF layout.");
-    }
-    const leftX = Math.max(42, x);
-    const rightX = cover.getWidth() - 48;
-    cover.drawRectangle({
-      x: leftX - 3,
-      y: noteY + 10,
-      width: rightX - leftX + 5,
-      height: headingY - noteY - 12,
-      color: PDFLib.rgb(1, 1, 1)
-    });
-    const regular = await out.embedFont(PDFLib.StandardFonts.Helvetica);
     const bold = await out.embedFont(PDFLib.StandardFonts.HelveticaBold);
-    const fontSize = 9.6;
-    const lineStep = rows.length === 4 ? 12 : 13;
-    for (let i = 0; i < rows.length; i++) {
-      const y = headingY - 16 - i * lineStep;
-      const label = "-  " + rows[i].label;
-      const rightText = rows[i].pages;
-      const rightWidth = bold.widthOfTextAtSize(rightText, fontSize);
-      if (regular.widthOfTextAtSize(label, fontSize) + rightWidth + 12 > rightX - leftX) {
-        throw Error("A contents label is too long for the cover: " + rows[i].label);
+    const fontSize = 9.25;
+    const rightX = cover.getWidth() - 64;
+    for (const row of rows) {
+      const normalize = text => text.toLowerCase().replace(/[^a-z0-9]+/g, "");
+      const key = normalize(row.label);
+      const matches = lines.filter(line => normalize(line.text) === key);
+      if (matches.length !== 1) {
+        throw Error("Could not identify the reserved page-index row '" + row.label +
+          "' on the cover. Download a NEW Word draft, export it to PDF, " +
+          "and use that PDF in step 3.");
       }
-      cover.drawText(label, {
-        x: leftX, y, size: fontSize, font: regular, color: PDFLib.rgb(0.1, 0.1, 0.1)
-      });
-      cover.drawText(rightText, {
-        x: rightX - rightWidth, y, size: fontSize, font: bold, color: PDFLib.rgb(0.1, 0.1, 0.1)
+      const line = matches[0];
+      const textWidth = bold.widthOfTextAtSize(row.pages, fontSize);
+      const startX = rightX - textWidth;
+      if (line.endX + 8 > startX) {
+        throw Error("The cover's page-index row is too wide for page numbers: " +
+          row.label + ". Export the new Word draft without editing that row.");
+      }
+      cover.drawText(row.pages, {
+        x: startX,
+        y: line.y,
+        size: fontSize,
+        font: bold,
+        color: PDFLib.rgb(0.1, 0.1, 0.1)
       });
     }
   }
