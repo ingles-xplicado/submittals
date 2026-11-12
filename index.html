@@ -90,7 +90,7 @@
     <h3>Products</h3>
     <div id="products"></div>
     <label id="showAllLabel" hidden><input id="showAll" type="checkbox"> Show all saved products for manual corrections</label>
-    <p class="note">Only products matched to the Jotform appear here after it is read. Review the matches against the original submission; 68 products are currently saved, including accessories without separate verified SDS links.</p>
+    <p class="note">Only products matched to the Jotform appear here after it is read. Review the matches against the original submission; 73 products are currently saved, including accessories without separate verified SDS links.</p>
 
     <label><input id="warranty" type="checkbox"> Include the template’s 25-year sample warranty</label>
     <button id="word">Download Word draft</button>
@@ -963,7 +963,10 @@ function refreshProductVisibility() {
     const check = $("pick-" + p.id);
     check.parentElement.hidden = !showAll && check.dataset.matched !== "true";
     for (const kind of ["tds", "sds", ...(p.sdsPartB ? ["sdsPartB"] : []), ...(p.sdsPartC ? ["sdsPartC"] : [])]) {
-      $(p.id + "-" + kind).parentElement.hidden = !check.checked || !p[kind];
+      const sheetInput = $(p.id + "-" + kind);
+      if (sheetInput) {
+        sheetInput.parentElement.hidden = !check.checked || !p[kind];
+      }
     }
   }
 }
@@ -1147,7 +1150,10 @@ action("read", "readStatus", async () => {
     check.checked = matched;
     check.dataset.matched = String(matched);
     for (const k of ["tds", "sds", ...(p.sdsPartB ? ["sdsPartB"] : []), ...(p.sdsPartC ? ["sdsPartC"] : [])]) {
-      $(p.id + "-" + k).value = "";
+      const sheetInput = $(p.id + "-" + k);
+      if (sheetInput) {
+        sheetInput.value = "";
+      }
     }
   }
   $("showAllLabel").hidden = false;
@@ -1350,4 +1356,3 @@ action("build", "pdfStatus", async () => {
 </script>
 </body>
 </html>
-
