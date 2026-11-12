@@ -834,6 +834,90 @@ catalog.push(
   }
 );
 
+  
+catalog.push(
+  {
+    id: "thinset-mortar-admix",
+    name: "Thin-Set & Mortar Admix",
+    aliases: [
+      "Thin-Set and Mortar Admix",
+      "Thin Set Mortar Admix"
+    ],
+    standard: "Refer to TDS-175; applicable standards depend on the mortar system",
+    use: "Liquid polymer admixture to improve the performance of cement mortars and grouts",
+    tds: base + "TDS/TDS-175.pdf",
+    sds: uploads + "2021/08/thin-setmortaradmix_ghs-whmis_english_13-may-2020_13.pdf"
+  },
+  {
+    id: "versabond-hp",
+    name: "VersaBond® HP High Performance Large and Heavy Tile Mortar",
+    aliases: [
+      "VersaBond HP High Performance Large and Heavy Tile Mortar",
+      "VersaBond HP Large and Heavy Tile Mortar",
+      "VersaBond HP"
+    ],
+    standard: "ANSI A118.15HET and A118.11",
+    use: "High-performance, non-sag/non-slump mortar for large and heavy tile",
+    tds: base + "product-pdf?id=8084",
+    sds: uploads + "VersaBondHP_GHS-WHMIS_English_29-August-2024_1.0.pdf"
+  },
+  {
+    id: "versabond-professional",
+    name: "VersaBond® Professional Thin-Set Mortar",
+    aliases: [
+      "VersaBond Professional Thin-Set Mortar",
+      "VersaBond Professional Thin Set Mortar",
+      "VersaBond Professional Tile Mortar"
+    ],
+    standard: "ANSI A118.4 and A118.11",
+    use: "All-purpose polymer-modified thin-set mortar for tile and stone",
+    tds: base + "TDS/TDS-119.pdf",
+    sds: uploads + "resources/versabondprofessionalthin-setmortar_ghs-whmis_english_05-november-2020_20.pdf"
+  },
+  {
+    id: "versabond-lite",
+    name: "VersaBond® Lite Professional Large and Heavy Tile Mortar",
+    aliases: [
+      "VersaBond Lite Professional Large and Heavy Tile Mortar",
+      "VersaBond Lite Professional Large & Heavy Tile Mortar",
+      "VersaBond Lite"
+    ],
+    standard: "ANSI A118.4HET and A118.11",
+    use: "Lightweight, high-bond-strength mortar for large and heavy tile",
+    tds: base + "TDS/TDS-451.pdf",
+    sds: uploads + "VersaBondLite_GHS-WHMIS_English_26-September-2022_1.0.pdf"
+  },
+  {
+    id: "versabond-lft-rs",
+    name: "VersaBond® LFT RS Rapid Setting Large Format Tile Mortar",
+    aliases: [
+      "VersaBond LFT RS Rapid Setting Large Format Tile Mortar",
+      "VersaBond LHT RS Rapid Setting Large and Heavy Tile Mortar",
+      "VersaBond LHT RS Professional Rapid Setting Large and Heavy Tile Mortar",
+      "VersaBond LFT RS",
+      "VersaBond LHT RS"
+    ],
+    standard: "ANSI A118.4FHT and A118.11",
+    use: "Rapid-setting, non-sag/non-slump mortar for large and heavy tile",
+    tds: base + "TDS/TDS-450.pdf",
+    sds: uploads + "VersaBondLHTRSEnglishSDS.pdf"
+  }
+);
+
+// Existing VersaBond LHT product:
+// Add its alternative Large & Heavy Tile names.
+const existingVersaBondLHT = catalog.find(
+  p => p.id === "versabond"
+);
+
+if (existingVersaBondLHT) {
+  existingVersaBondLHT.aliases.push(
+    "VersaBond LHT Professional Large & Heavy Tile Mortar",
+    "VersaBond LHT Professional Large and Heavy Tile Mortar"
+  );
+}
+
+
 for (const p of catalog) {
   const label = document.createElement("label");
   const check = document.createElement("input");
