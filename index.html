@@ -90,7 +90,7 @@
     <h3>Products</h3>
     <div id="products"></div>
     <label id="showAllLabel" hidden><input id="showAll" type="checkbox"> Show all saved products for manual corrections</label>
-    <p class="note">Only products matched to the Jotform appear here after it is read. Review the matches against the original submission; eight products are currently saved.</p>
+    <p class="note">Only products matched to the Jotform appear here after it is read. Review the matches against the original submission; ten products are currently saved.</p>
 
     <label><input id="warranty" type="checkbox"> Include the template’s 25-year sample warranty</label>
     <button id="word">Download Word draft</button>
@@ -201,6 +201,39 @@ const catalog = [
     sds: uploads + "2021/08/customspeedsloperapidsettingslopingmortar_ghs-whmis_english_09-november-2020_20.pdf"
   }
 ];
+
+// Additional products: CustomFloat and EasyMat.
+// Keep these after the catalog array closes, but before product checkboxes are created.
+catalog.push(
+  {
+    id: "customfloat",
+    name: "CustomFloat® Bedding Mortar",
+    aliases: [
+      "CustomFloat Bedding Mortar",
+      "Custom Float Bedding Mortar",
+      "CustomFloat",
+      "Custom Float"
+    ],
+    standard: "ANSI A108.01 and A108.02 (installation standards referenced in TDS)",
+    use: "Lightweight Portland cement-based bedding and brown-coat mortar",
+    tds: base + "product-pdf?id=639",
+    sds: uploads + "2021/08/customfloatbeddingmortar_ghs-whmis_english_10-november-2020_30.pdf"
+  },
+  {
+    id: "easymat",
+    name: "EasyMat® Tile & Stone Underlayment",
+    aliases: [
+      "EasyMat Tile & Stone Underlayment",
+      "EasyMat Tile and Stone Underlayment",
+      "Easy Mat Tile and Stone Underlayment",
+      "EasyMat"
+    ],
+    standard: "ANSI A108.01, A108.17, A118.10, A118.12 and A118.13 (listed in TDS)",
+    use: "Crack-isolation and sound-reduction underlayment for tile and stone",
+    tds: uploads + "DATA_SHEET-EasyMat-Tile-and-Stone-Underlayment-102.pdf",
+    sds: uploads + "2021/08/easymattilestoneunderlayment_ghs-whmis_english_24-february-2021_11.pdf"
+  }
+);
 
 for (const p of catalog) {
   const label = document.createElement("label");
