@@ -412,6 +412,26 @@ action("read", "readStatus", async () => {
   $("term").value = (value("term").match(/\d+/) || [""])[0];
   $("warranty").checked = value("term") === "25";
 
+  // Remove Jotform instructions from extracted fields.
+  function cleanFormField(id) {
+    const instructions = [
+      /^,?\s*City\/State or Province,\s*Zip\/Postal Code$/i,
+      /^Contact Name,\s*Company Name,\s*Address,\s*City\/State,\s*Zip\/Postal Code\s*(?:&|and)\s*Phone number$/i
+    ];
+
+    $(id).value = $(id).value
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(line =>
+        line &&
+        !instructions.some(pattern => pattern.test(line))
+      )
+      .join("\n");
+  }
+
+  cleanFormField("address");
+  cleanFormField("recipient");
+
   const start = text.search(/Surface Preparation Products/i);
   const end = text.search(/Non-Custom Products in the Assembly/i);
   const productText = norm(text.slice(start >= 0 ? start : 0, end >= 0 ? end : undefined));
