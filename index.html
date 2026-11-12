@@ -103,6 +103,15 @@
     <p class="note">The PDF library lives in the <code>sheets/</code> folder of the published website. GitHub Actions downloads the official files from the catalog's links when the site is updated and refreshes them monthly. No per-package sheet uploads are needed.</p>
     <label for="front">Reviewed project pages and drawings</label>
     <input id="front" type="file" accept=".pdf">
+    <div class="grid">
+      <label for="systemEndPage">Last page of installation system / project reference
+        <input id="systemEndPage" type="number" min="1" step="1" value="2">
+      </label>
+      <label for="warrantyEndPage">Last page of sample warranty (if included)
+        <input id="warrantyEndPage" type="number" min="1" step="1" value="3">
+      </label>
+    </div>
+    <p class="note">These numbers refer to your reviewed PDF, starting with the cover as page 1. The builder counts all remaining reviewed pages as method details, then calculates the TDS/SDS page range automatically. For a two-page system plus one warranty page, leave 2 and 3.</p>
     <label><input id="tds" type="checkbox" checked> Include technical data sheets</label>
     <label><input id="sds" type="checkbox" checked> Include safety data sheets</label>
     <details id="localDetails">
@@ -1427,7 +1436,19 @@ action("build", "pdfStatus", async () => {
     const pages = await out.copyPages(src, src.getPageIndices());
     pages.forEach(p => out.addPage(p));
   }
-  await append(await frontFile.arrayBuffer());
+  const frontBytes = await frontFile.arrayBuffer();
+  await append(frontBytes);
+  const frontPages = out.getPageCount();
+  const systemEnd = Number(value("systemEndPage"));
+  const hasWarranty = $("warranty").checked;
+  const warrantyEnd = hasWarranty ? Number(value("warrantyEndPage")) : systemEnd;
+  if (!Number.isInteger(systemEnd) || systemEnd < 1 || systemEnd > frontPages) {
+    throw Error("Enter the correct last page for the system/reference section (1 through " + frontPages + ").");
+  }
+  if (hasWarranty && (!Number.isInteger(warrantyEnd) || warrantyEnd <= systemEnd || warrantyEnd > frontPages)) {
+    throw Error("Enter the last warranty page. It must be after page " + systemEnd +
+      " and within the " + frontPages + " pages of your reviewed PDF.");
+  }
   const ranges = [];
   const skipped = [];
   for (const product of picks) {
@@ -1478,10 +1499,95 @@ action("build", "pdfStatus", async () => {
       }
     }
   }
+  // The final page ranges are available only after ALL sheets have been added.
+  // Add them to the first page of the reviewed Word-to-PDF cover.
+  const lastPage = out.getPageCount();
+  function pageRange(first, last) {
+    return first === last ? "Page " + first : "Pages " + first + "-" + last;
+  }
+  const contents = [
+    { label: "Suggested Installation System & Project Reference", pages: pageRange(1, systemEnd) }
+  ];
+  if (hasWarranty) {
+    contents.push({ label: "Sample Warranty", pages: pageRange(systemEnd + 1, warrantyEnd) });
+  }
+  if (frontPages > warrantyEnd) {
+    contents.push({ label: "Suggested Method Details", pages: pageRange(warrantyEnd + 1, frontPages) });
+  }
+  contents.push({
+    label: $("tds").checked && $("sds").checked ? "Product Data Sheets & SDS" :
+      $("tds").checked ? "Product Data Sheets (TDS)" : "Safety Data Sheets (SDS)",
+    pages: pageRange(frontPages + 1, lastPage)
+  });
+
+  async function applyCoverContents(frontSourceBytes, rows) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const sourcePdf = await pdfjsLib.getDocument({
+      data: new Uint8Array(frontSourceBytes.slice(0))
+    }).promise;
+    let positions;
+    try {
+      const firstPage = await sourcePdf.getPage(1);
+      const items = (await firstPage.getTextContent()).items.filter(item => item.str);
+      const heading = items.find(item => /this package includes/i.test(item.str));
+      const nextParagraph = items.find(item => /^\s*NOTE\s*:/i.test(item.str)) ||
+        items.find(item => /as a courtesy to our customers/i.test(item.str));
+      if (!heading || !nextParagraph) {
+        throw Error("Could not locate the 'This package includes' section on page 1. " +
+          "Use a front-pages PDF exported from the CUSTOM Word template.");
+      }
+      positions = {
+        x: heading.transform[4],
+        headingY: heading.transform[5],
+        noteY: nextParagraph.transform[5]
+      };
+    } finally {
+      await sourcePdf.destroy();
+    }
+
+    // Paint only the old package-list lines, preserving the heading and NOTE.
+    const cover = out.getPages()[0];
+    const { x, headingY, noteY } = positions;
+    if (headingY - noteY < 60) {
+      throw Error("The cover has too little space between the package list and NOTE " +
+        "for automatic page references. Check the reviewed PDF layout.");
+    }
+    const leftX = Math.max(42, x);
+    const rightX = cover.getWidth() - 48;
+    cover.drawRectangle({
+      x: leftX - 3,
+      y: noteY + 10,
+      width: rightX - leftX + 5,
+      height: headingY - noteY - 12,
+      color: PDFLib.rgb(1, 1, 1)
+    });
+    const regular = await out.embedFont(PDFLib.StandardFonts.Helvetica);
+    const bold = await out.embedFont(PDFLib.StandardFonts.HelveticaBold);
+    const fontSize = 9.6;
+    const lineStep = rows.length === 4 ? 12 : 13;
+    for (let i = 0; i < rows.length; i++) {
+      const y = headingY - 16 - i * lineStep;
+      const label = "-  " + rows[i].label;
+      const rightText = rows[i].pages;
+      const rightWidth = bold.widthOfTextAtSize(rightText, fontSize);
+      if (regular.widthOfTextAtSize(label, fontSize) + rightWidth + 12 > rightX - leftX) {
+        throw Error("A contents label is too long for the cover: " + rows[i].label);
+      }
+      cover.drawText(label, {
+        x: leftX, y, size: fontSize, font: regular, color: PDFLib.rgb(0.1, 0.1, 0.1)
+      });
+      cover.drawText(rightText, {
+        x: rightX - rightWidth, y, size: fontSize, font: bold, color: PDFLib.rgb(0.1, 0.1, 0.1)
+      });
+    }
+  }
+  await applyCoverContents(frontBytes, contents);
   download(new Blob([await out.save()], {type:"application/pdf"}),
     filename() + " Submittal Package.pdf");
   return "Package downloaded · " + out.getPageCount() + " pages\n\n" +
-    ranges.join("\n") +
+    contents.map(item => item.label + ": " + item.pages).join("\n") +
+    "\n\n" + ranges.join("\n") +
     (skipped.length ? "\n\nNot attached (no verified SDS link):\n" + skipped.join("\n") : "");
 });
 </script>
