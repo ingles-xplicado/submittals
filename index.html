@@ -593,12 +593,12 @@ action("build", "pdfStatus", async () => {
   await append(await frontFile.arrayBuffer());
   const ranges = [];
   for (const product of picks) {
-    for (const kind of kinds) {
-      const title = product.name + " " + kind.toUpperCase();
+    for (const kind of [...kinds, ...(kinds.includes("sds") && product.sdsPartB ? ["sdsPartB"] : [])]) {
+      const title = product.name + " " + (kind === "sdsPartB" ? "SDS Part B" : kind.toUpperCase());
       $("pdfStatus").textContent = "Adding " + title + "…";
       // A manual file is an optional override. Normally PDFs are served from
       // this GitHub Pages site (same origin), avoiding manufacturer CORS issues.
-      const local = $(product.id + "-" + kind).files[0];
+      const local = $(product.id + "-" + kind)?.files[0];
       const cachedPath = "./sheets/" + product.id + "-" + kind + ".pdf";
       try {
         let bytes;
