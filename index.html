@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CBP Submittal Builder</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.7/dist/pizzip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box }
+    body {
+      margin: 0; background: #f5f5f2; color: #202523;
+      font: 16px/1.45 system-ui, sans-serif;
+    }
+    header {
+      background: #202523; color: white;
+      border-bottom: 4px solid #e18331;
+      padding: 18px max(20px, calc((100vw - 850px)/2));
+      font-weight: 750;
+    }
+    main { max-width: 890px; margin: 32px auto; padding: 0 20px 50px }
+    section {
+      background: white; border: 1px solid #d8dbd6;
+      border-radius: 9px; padding: 22px; margin: 16px 0;
+    }
+    h1 { margin: 0 0 18px }
+    h2 { margin: 0 0 12px; font-size: 20px }
+    label { display: block; margin: 12px 0 4px; font-weight: 600 }
+    input:not([type=checkbox]), textarea {
+      display: block; width: 100%; padding: 9px;
+      border: 1px solid #adb5af; border-radius: 4px; font: inherit;
+    }
+    textarea { min-height: 72px }
+    button {
+      margin: 14px 8px 0 0; padding: 10px 16px; border: 0;
+      background: #22533f; color: white; border-radius: 5px;
+      font: inherit; font-weight: 650; cursor: pointer;
+    }
+    button:disabled { opacity: .55; cursor: wait }
+    details { margin-top: 12px }
+    pre { white-space: pre-wrap; max-height: 320px; overflow: auto }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px }
+    .status { margin-top: 12px; white-space: pre-line; font-weight: 600 }
+    .note { color: #49554d; font-size: 14px }
+    @media(max-width: 640px) { .grid { grid-template-columns: 1fr } }
+  </style>
+</head>
+<body>
+<header>CBP · Technical Services</header>
+
+<main>
+  <h1>Submittal builder</h1>
+
+  <section>
+    <h2>1. Open a request</h2>
+    <label for="requestFile">Completed Jotform PDF</label>
+    <input id="requestFile" type="file" accept=".pdf">
+    <label for="templateFile">Blank CBP submittal template</label>
+    <input id="templateFile" type="file" accept=".docx">
+    <button id="read">Read Jotform</button>
+    <div id="readStatus" class="status" role="status"></div>
+    <details>
+      <summary>Read the original submission text</summary>
+      <pre id="source"></pre>
+    </details>
+  </section>
+
+  <section>
+    <h2>2. Review the Word draft</h2>
+    <div class="grid">
+      <label>Project name<input id="project"></label>
+      <label>Application<input id="application"></label>
+      <label>Representative<input id="rep"></label>
+      <label>Representative email<input id="email"></label>
+      <label>Phone<input id="phone"></label>
+      <label>Requested warranty term in years<input id="term"></label>
+    </div>
+    <label>Project site address
+      <textarea id="address"></textarea>
+    </label>
+    <p class="note">Check that this is the jobsite. Some submissions put the contractor’s mailing address here.</p>
+    <label>Warranty recipient
+      <textarea id="recipient"></textarea>
+    </label>
+
+    <h3>Products</h3>
+    <div id="products"></div>
+    <p class="note">Compare the checked products with the original request. This starter catalog covers five products.</p>
+
+    <label><input id="warranty" type="checkbox"> Include the template’s 25-year sample warranty</label>
+    <button id="word">Download Word draft</button>
+    <div id="wordStatus" class="status" role="status"></div>
+  </section>
+
+  <section>
+    <h2>3. Assemble the PDF package</h2>
+    <p>Review the draft in Word, add any drawings, then export those pages as one PDF. The sheets will follow those pages in product order.</p>
+    <label for="front">Reviewed project pages and drawings</label>
+    <input id="front" type="file" accept=".pdf">
+    <label><input id="tds" type="checkbox" checked> Include technical data sheets</label>
+    <label><input id="sds" type="checkbox" checked> Include safety data sheets</label>
+    <details id="localDetails">
+      <summary>Supply a sheet from your computer</summary>
+      <div id="localSheets"></div>
+    </details>
+    <button id="build">Build package</button>
+    <div id="pdfStatus" class="status" role="status"></div>
+  </section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const value = id => $(id).value.trim();
+const base = "https://www.custombuildingproducts.com/";
+const uploads = base + "wp-content/uploads/";
+
+const catalog = [
+  {
+    id: "redgard",
+    name: "RedGard® Crack Prevention and Waterproofing Membrane",
+    aliases: ["RedGard Crack Prevention and Waterproofing Membrane",
+              "RedGard Waterproofing and Crack Prevention Membrane"],
+    standard: "ANSI A118.12 and A118.10",
+    use: "Crack isolation and waterproofing membrane",
+    tds: uploads + "TDS-104-021425.pdf",
+    sds: uploads + "2021/08/redgardwaterproofingandcrackpreventionmembrane_ghs-whmis_english_17-november-2020_33.pdf"
+  },
+  {
+    id: "prolite",
+    name: "ProLite® Premium Large Format Tile Mortar",
+    aliases: ["ProLite Tile & Stone Mortar", "ProLite Premium Large Format Tile Mortar"],
+    standard: "ANSI A118.4TE, A118.15HET and A118.11",
+    use: "Large and heavy tile mortar",
+    tds: uploads + "TDS-114-Prolite-011626.pdf",
+    sds: uploads + "2021/08/prolitepremiumlargeformattilemortar_ghs-whmis_english_09-november-2020_20.pdf"
+  },
+  {
+    id: "versabond",
+    name: "VersaBond®-LHT Professional Large Format Tile Mortar",
+    aliases: ["VersaBond LHT Large Format Tile Mortar",
+              "VersaBond LHT Professional Large Format Tile Mortar"],
+    standard: "ANSI A118.4HT and A118.11",
+    use: "Large format tile mortar",
+    tds: uploads + "VersaBond%C2%AE-LHT-Professional-Large-Format-Tile-Mortar-8-12-26.pdf",
+    sds: uploads + "VersaBond-LHT-English-SDS.pdf"
+  },
+  {
+    id: "polyblend",
+    name: "Polyblend® Plus Non-Sanded Grout",
+    aliases: ["Polyblend Plus Non-Sanded Grout"],
+    standard: "ANSI A118.6",
+    use: "Non-sanded grout",
+    tds: base + "product-pdf?id=4637",
+    sds: uploads + "2021/08/polyblendplusnon-sandedgrout_ghs-whmis_english_10-november-2020_20.pdf"
+  },
+  {
+    id: "aquamix",
+    name: "Aqua Mix® Sealer’s Choice® Gold PFAS-Free",
+    aliases: ["Aqua Mix Sealer's Choice Gold PFAS Free"],
+    standard: "No ANSI performance standard listed in TDS-528",
+    use: "Penetrating sealer",
+    tds: uploads + "Sealers-Choice-Gold-PFAS-Free-8-21-26.pdf",
+    sds: uploads + "AquaMixSealersChoiceGoldPFAS-Free-English-SDS.pdf"
+  }
+];
+
+for (const p of catalog) {
+  const label = document.createElement("label");
+  const check = document.createElement("input");
+  check.type = "checkbox";
+  check.id = "pick-" + p.id;
+  label.append(check, " " + p.name);
+  $("products").append(label);
+
+  for (const kind of ["tds", "sds"]) {
+    const line = document.createElement("label");
+    const file = document.createElement("input");
+    file.type = "file";
+    file.accept = ".pdf";
+    file.id = p.id + "-" + kind;
+    const link = document.createElement("a");
+    link.href = p[kind];
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = "Open official PDF";
+    line.append(p.name + " · " + kind.toUpperCase() + " · ", link, file);
+    $("localSheets").append(line);
+  }
+}
+
+const selected = () => catalog.filter(p => $("pick-" + p.id).checked);
+const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+const filename = () => (value("project") || "CBP Project")
+  .replace(/[<>:"/\\|?*\x00-\x1f]/g, " ").slice(0, 110);
+
+function download(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+function action(button, status, work) {
+  $(button).onclick = async () => {
+    $(button).disabled = true;
+    $(status).textContent = "Working…";
+    try {
+      $(status).textContent = await work();
+    } catch (err) {
+      $(status).textContent = err.message || String(err);
+    } finally {
+      $(button).disabled = false;
+    }
+  };
+}
+
+async function readPdf(file) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+  const lines = [];
+  for (let n = 1; n <= pdf.numPages; n++) {
+    const page = await pdf.getPage(n);
+    const content = await page.getTextContent();
+    const rows = [];
+    for (const item of content.items) {
+      if (!item.str || !item.str.trim()) continue;
+      const y = item.transform[5];
+      let row = rows.find(r => Math.abs(r.y - y) < 2.5);
+      if (!row) {
+        row = {y, items: []};
+        rows.push(row);
+      }
+      row.items.push({ x: item.transform[4], text: item.str.trim() });
+    }
+    rows.sort((a,b) => b.y - a.y);
+    for (const row of rows) {
+      row.items.sort((a,b) => a.x - b.x);
+      lines.push(row.items.map(i => i.text).join(" "));
+    }
+  }
+  await pdf.destroy();
+  return lines.join("\n");
+}
+
+action("read", "readStatus", async () => {
+  const file = $("requestFile").files[0];
+  if (!file) throw Error("Choose the completed Jotform PDF first.");
+  const text = await readPdf(file);
+  if (text.trim().length < 40) throw Error("Use the searchable PDF exported by Jotform.");
+  $("source").textContent = text;
+
+  function first(regex) {
+    return (text.match(regex)?.[1] || "").trim();
+  }
+  $("rep").value = first(/^Your Name[ \t]+(.+)$/im);
+  $("email").value = first(/^Your Email Address[ \t]+(.+)$/im);
+  $("phone").value = first(/^Submitter['’]s Phone Number[ \t]+(.+)$/im);
+  $("project").value = first(/^Project Name\s*\n([\s\S]*?)(?=\nProject Address)/im)
+    .replace(/\s+/g, " ");
+  $("address").value = first(/^Project Address[^\n]*\n([\s\S]*?)(?=\n(?:Owner Information|General Contractor Information|Architect Firm))/im);
+  $("application").value = first(/^Application\s*\(Check all that apply\)[ \t]+(.+)$/im);
+  $("term").value = first(/^Warranty Term Requested \(Years\)[ \t]+(\d+)/im);
+  $("recipient").value = first(/^Warranty Recipient\s*-\s*\n[^\n]*\n([\s\S]*?)(?=\nWarranty Recipient\s*-\s*Email)/im)
+    .replace(/^\s*\d{1,2}\s*$/gm, "").trim();
+  $("warranty").checked = value("term") === "25";
+
+  const start = text.search(/Surface Preparation Products/i);
+  const end = text.search(/Non-Custom Products in the Assembly/i);
+  const productText = norm(text.slice(start >= 0 ? start : 0, end >= 0 ? end : undefined));
+  for (const p of catalog) {
+    $("pick-" + p.id).checked = [p.name, ...p.aliases]
+      .some(alias => productText.includes(norm(alias)));
+    for (const k of ["tds","sds"]) $(p.id + "-" + k).value = "";
+  }
+  $("front").value = "";
+  return `Read the submission. ${selected().length} catalog products matched. Review the fields and checkboxes below.`;
+});
+
+// These changes target the supplied "blank 1 submittal.docx" layout.
+const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+function children(node, name) {
+  return [...node.children].filter(e => e.namespaceURI === W && e.localName === name);
+}
+function newW(doc, name) { return doc.createElementNS(W, "w:" + name); }
+function setParagraph(p, text) {
+  const doc = p.ownerDocument;
+  const oldProps = p.getElementsByTagNameNS(W, "rPr")[0]?.cloneNode(true);
+  for (const child of [...p.children]) {
+    if (child.localName !== "pPr") child.remove();
+  }
+  const run = newW(doc, "r");
+  if (oldProps) run.append(oldProps);
+  String(text).split("\n").forEach((line, i) => {
+    if (i) run.append(newW(doc, "br"));
+    const t = newW(doc, "t");
+    t.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:space", "preserve");
+    t.textContent = line;
+    run.append(t);
+  });
+  p.append(run);
+}
+function setCell(cell, text) {
+  const ps = children(cell, "p");
+  const p = ps.shift() || cell.appendChild(newW(cell.ownerDocument, "p"));
+  ps.forEach(other => other.remove());
+  setParagraph(p, text);
+}
+function paragraphText(p) {
+  return [...p.getElementsByTagNameNS(W, "t")].map(t => t.textContent).join("");
+}
+
+action("word", "wordStatus", async () => {
+  const template = $("templateFile").files[0];
+  if (!template) throw Error("Choose the blank CBP Word template in step 1.");
+  if (!value("project")) throw Error("Enter the project name.");
+  const picks = selected();
+  if (!picks.length) throw Error("Select at least one product.");
+  if ($("warranty").checked && value("term") !== "25")
+    throw Error("The supplied sample warranty is for 25 years. Review the requested term.");
+
+  const zip = new PizZip(await template.arrayBuffer());
+  const xml = zip.file("word/document.xml")?.asText();
+  if (!xml) throw Error("Choose a .docx Word file.");
+  const doc = new DOMParser().parseFromString(xml, "application/xml");
+  const body = doc.getElementsByTagNameNS(W, "body")[0];
+  const ps = children(body, "p");
+  const tables = children(body, "tbl");
+  if (tables.length !== 3 || !ps[19] || !/^Project:/i.test(paragraphText(ps[19]))
+      || !/^RE:/i.test(paragraphText(ps[20])))
+    throw Error("This version expects the original blank 1 submittal.docx layout.");
+
+  setParagraph(ps[6], [
+    "SUGGESTED PRODUCT SYSTEMS SUBMITTAL",
+    value("project").toUpperCase(),
+    value("address"),
+    "Review draft"
+  ].filter(Boolean).join("\n"));
+
+  const contactRows = children(tables[0], "tr");
+  [value("rep"), value("email"), value("phone")].forEach((v,i) =>
+    setCell(children(contactRows[i], "tc")[0], v));
+
+  let props = children(ps[9], "pPr")[0];
+  if (!props) ps[9].prepend(props = newW(doc, "pPr"));
+  let space = children(props, "spacing")[0];
+  if (!space) props.append(space = newW(doc, "spacing"));
+  space.setAttributeNS(W, "w:before", "300");
+
+  const kinds = ["tds", "sds"].filter(k => $(k).checked);
+  const contents = ["Suggested installation system and project reference"];
+  if ($("warranty").checked) contents.push("Sample warranty");
+  if (kinds.length) contents.push("Product documentation: " + kinds.map(k => k.toUpperCase()).join(" and "));
+  setParagraph(ps[10], contents.join("\n"));
+  setParagraph(ps[19], "Project: " + value("project"));
+  setParagraph(ps[20], "RE: " + value("application"));
+  setParagraph(ps[26], value("term") ? "Requested warranty term: " + value("term") + " years." : "");
+  setParagraph(ps[31], paragraphText(ps[31]).replace(/8\/2026\s*$/, ""));
+
+  const productRows = children(tables[1], "tr");
+  const model = productRows[1].cloneNode(true);
+  productRows.slice(1).forEach(r => r.remove());
+  for (const p of picks) {
+    const row = model.cloneNode(true);
+    const cells = children(row, "tc");
+    [p.name, p.standard, p.use].forEach((v,i) => setCell(cells[i], v));
+    tables[1].append(row);
+  }
+
+  if ($("warranty").checked) {
+    const rows = children(tables[2], "tr");
+    const info = children(rows[1], "tc");
+    setCell(info[0], new Date().toLocaleDateString("en-US"));
+    setCell(info[1], [value("project"), value("address")].filter(Boolean).join("\n"));
+    setCell(info[info.length - 1], value("recipient"));
+    setCell(children(rows[2], "tc")[0],
+      "Products submitted for review:\n" + picks.map(p => p.name).join("\n"));
+  } else {
+    let node = ps[32];
+    while (node) {
+      const next = node.nextElementSibling;
+      if (node.localName !== "sectPr") node.remove();
+      node = next;
+    }
+  }
+  zip.file("word/document.xml", new XMLSerializer().serializeToString(doc));
+  download(zip.generate({
+    type: "blob",
+    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  }), filename() + " Draft.docx");
+  return "Word draft downloaded. Review the draft and export your project pages as a PDF for step 3.";
+});
+
+action("build", "pdfStatus", async () => {
+  const frontFile = $("front").files[0];
+  if (!frontFile) throw Error("Choose the reviewed front-pages PDF first.");
+  const picks = selected();
+  const kinds = ["tds","sds"].filter(k => $(k).checked);
+  if (!picks.length || !kinds.length) throw Error("Choose products and at least one sheet type.");
+  const out = await PDFLib.PDFDocument.create();
+  async function append(bytes) {
+    const src = await PDFLib.PDFDocument.load(bytes);
+    const pages = await out.copyPages(src, src.getPageIndices());
+    pages.forEach(p => out.addPage(p));
+  }
+  await append(await frontFile.arrayBuffer());
+  const ranges = [];
+  for (const product of picks) {
+    for (const kind of kinds) {
+      const title = product.name + " " + kind.toUpperCase();
+      $("pdfStatus").textContent = "Adding " + title + "…";
+      const local = $(product.id + "-" + kind).files[0];
+      try {
+        let bytes;
+        if (local) bytes = await local.arrayBuffer();
+        else {
+          const response = await fetch(product[kind]);
+          if (!response.ok) throw Error("Download failed");
+          bytes = await response.arrayBuffer();
+        }
+        const start = out.getPageCount() + 1;
+        await append(bytes);
+        ranges.push(title + ": pages " + start + "–" + out.getPageCount());
+      } catch {
+        $("localDetails").open = true;
+        throw Error("Could not add " + title +
+          ". Under “Supply a sheet from your computer,” open its official PDF, save it, choose that file, and click Build package again.");
+      }
+    }
+  }
+  download(new Blob([await out.save()], {type:"application/pdf"}),
+    filename() + " Submittal Package.pdf");
+  return "Package downloaded · " + out.getPageCount() + " pages\n\n" + ranges.join("\n");
+});
+</script>
+</body>
+</html>
