@@ -432,6 +432,13 @@ action("read", "readStatus", async () => {
   cleanFormField("address");
   cleanFormField("recipient");
 
+  
+  // Clean unwanted Jotform labels from Application field.
+  $("application").value = value("application")
+    .replace(/\s*Finish Materials?\s*\(Check all that apply\).*$/i, "")
+    .replace(/\s*\(Check all that apply\)/gi, "")
+    .trim();
+
   const start = text.search(/Surface Preparation Products/i);
   const end = text.search(/Non-Custom Products in the Assembly/i);
   const productText = norm(text.slice(start >= 0 ? start : 0, end >= 0 ? end : undefined));
