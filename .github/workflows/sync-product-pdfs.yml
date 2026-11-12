@@ -63,11 +63,11 @@ jobs:
             }
 
             // Include SDS Part B when a product has one.
-            const kinds = [
-              'tds',
-              'sds',
-              ...(product.sdsPartB ? ['sdsPartB'] : [])
-            ];
+         const kinds = [
+  'tds',
+  ...(product.sds ? ['sds'] : []),
+  ...(product.sdsPartB ? ['sdsPartB'] : [])
+];
 
             for (const kind of kinds) {
               const url = product[kind];
