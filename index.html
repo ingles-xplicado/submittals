@@ -29,6 +29,7 @@
     h1 { margin: 0 0 18px }
     h2 { margin: 0 0 12px; font-size: 20px }
     label { display: block; margin: 12px 0 4px; font-weight: 600 }
+    [hidden] { display: none !important; }
     input:not([type=checkbox]), textarea {
       display: block; width: 100%; padding: 9px;
       border: 1px solid #adb5af; border-radius: 4px; font: inherit;
@@ -88,7 +89,8 @@
 
     <h3>Products</h3>
     <div id="products"></div>
-    <p class="note">Compare the checked products with the original request. This starter catalog covers five products.</p>
+    <label id="showAllLabel" hidden><input id="showAll" type="checkbox"> Show all saved products for manual corrections</label>
+    <p class="note">Only products matched to the Jotform appear here after it is read. Review the matches against the original submission; eight products are currently saved.</p>
 
     <label><input id="warranty" type="checkbox"> Include the template’s 25-year sample warranty</label>
     <button id="word">Download Word draft</button>
@@ -165,12 +167,11 @@ const catalog = [
     tds: uploads + "Sealers-Choice-Gold-PFAS-Free-8-21-26.pdf",
     sds: uploads + "AquaMixSealersChoiceGoldPFAS-Free-English-SDS.pdf"
   },
-  catalog.push(
   {
     id: "crack-buster-pro",
     name: "Crack Buster® Pro Crack Prevention Mat Underlayment",
     aliases: [
-      "Crack Buster Pro Crack Prevention Mat Underlayment"
+      "Crack Buster Pro Crack Prevention Mat Underlayment", "Crack Buster Pro"
     ],
     standard: "ANSI A118.12 and A118.13",
     use: "Crack isolation and sound reduction underlayment",
@@ -181,7 +182,7 @@ const catalog = [
     id: "custom-9240",
     name: "Custom® 9240 Waterproofing and Anti-Fracture Membrane",
     aliases: [
-      "Custom 9240 Waterproofing and Anti-Fracture Membrane"
+      "Custom 9240 Waterproofing and Anti-Fracture Membrane", "Custom 9240"
     ],
     standard: "ANSI A118.10 and A118.12",
     use: "Waterproofing and crack isolation membrane",
@@ -192,7 +193,7 @@ const catalog = [
     id: "speedslope",
     name: "CUSTOM® SpeedSlope® – Rapid Setting Sloping Mortar",
     aliases: [
-      "SpeedSlope Rapid Setting Sloping Mortar"
+      "SpeedSlope Rapid Setting Sloping Mortar", "SpeedSlope"
     ],
     standard: "ANSI A108.1",
     use: "Rapid-setting mortar for forming slopes",
@@ -206,6 +207,7 @@ for (const p of catalog) {
   const check = document.createElement("input");
   check.type = "checkbox";
   check.id = "pick-" + p.id;
+  label.hidden = true; // Wait for Jotform matching before displaying products.
   label.append(check, " " + p.name);
   $("products").append(label);
 
@@ -215,6 +217,7 @@ for (const p of catalog) {
     file.type = "file";
     file.accept = ".pdf";
     file.id = p.id + "-" + kind;
+    line.hidden = true; // Display sheet upload fields for selected products only.
     const link = document.createElement("a");
     link.href = p[kind];
     link.target = "_blank";
@@ -226,6 +229,21 @@ for (const p of catalog) {
 }
 
 const selected = () => catalog.filter(p => $("pick-" + p.id).checked);
+
+function refreshProductVisibility() {
+  const showAll = $("showAll").checked;
+  for (const p of catalog) {
+    const check = $("pick-" + p.id);
+    check.parentElement.hidden = !showAll && check.dataset.matched !== "true";
+    for (const kind of ["tds", "sds"]) {
+      $(p.id + "-" + kind).parentElement.hidden = !check.checked;
+    }
+  }
+}
+$("showAll").addEventListener("change", refreshProductVisibility);
+for (const p of catalog) {
+  $("pick-" + p.id).addEventListener("change", refreshProductVisibility);
+}
 const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, "");
 const filename = () => (value("project") || "CBP Project")
   .replace(/[<>:"/\\|?*\x00-\x1f]/g, " ").slice(0, 110);
@@ -308,12 +326,20 @@ action("read", "readStatus", async () => {
   const end = text.search(/Non-Custom Products in the Assembly/i);
   const productText = norm(text.slice(start >= 0 ? start : 0, end >= 0 ? end : undefined));
   for (const p of catalog) {
-    $("pick-" + p.id).checked = [p.name, ...p.aliases]
+    const matched = [p.name, ...p.aliases]
       .some(alias => productText.includes(norm(alias)));
-    for (const k of ["tds","sds"]) $(p.id + "-" + k).value = "";
+    const check = $("pick-" + p.id);
+    check.checked = matched;
+    check.dataset.matched = String(matched);
+    for (const k of ["tds", "sds"]) $(p.id + "-" + k).value = "";
   }
+  $("showAllLabel").hidden = false;
+  $("showAll").checked = false;
+  refreshProductVisibility();
   $("front").value = "";
-  return `Read the submission. ${selected().length} catalog products matched. Review the fields and checkboxes below.`;
+  const count = selected().length;
+  if (!count) return "Jotform read, but no saved products matched. Check the original submission or select Show all saved products for manual corrections.";
+  return `Jotform read. ${count} saved product${count === 1 ? "" : "s"} matched and displayed below. Review before building your draft.`;
 });
 
 // These changes target the supplied "blank 1 submittal.docx" layout.
