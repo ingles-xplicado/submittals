@@ -46,28 +46,30 @@ jobs:
           const catalog = vm.runInNewContext(
             html.slice(begin, end) + '\ncatalog',
             {},
-            {timeout: 2000}
+            { timeout: 2000 }
           );
 
           if (!Array.isArray(catalog) || !catalog.length) {
             throw Error('Product catalog is empty');
           }
 
-          fs.mkdirSync('sheets', {recursive: true});
-
+          fs.mkdirSync('sheets', { recursive: true });
           const errors = [];
+          let expected = 0;
 
           for (const product of catalog) {
             if (!/^[a-z0-9-]+$/.test(product.id)) {
               throw Error('Invalid product ID');
             }
 
-            // Include SDS Part B when a product has one.
-         const kinds = [
-  'tds',
-  ...(product.sds ? ['sds'] : []),
-  ...(product.sdsPartB ? ['sdsPartB'] : [])
-];
+            // Download TDS and available SDS documents.
+            const kinds = [
+              'tds',
+              ...(product.sds ? ['sds'] : []),
+              ...(product.sdsPartB ? ['sdsPartB'] : [])
+            ];
+
+            expected += kinds.length;
 
             for (const kind of kinds) {
               const url = product[kind];
@@ -76,7 +78,7 @@ jobs:
               const temporary = destination + '.tmp';
 
               try {
-                // Allow CUSTOM and QUIKRETE official PDFs.
+                // Allow CUSTOM and QUIKRETE documents.
                 if (!/^https:\/\/(?:www\.)?(?:custombuildingproducts\.com|quikrete\.com)\//.test(url)) {
                   throw Error('Invalid manufacturer URL');
                 }
@@ -101,7 +103,6 @@ jobs:
                 }
 
                 fs.renameSync(temporary, destination);
-
                 console.log(`OK: ${filename}`);
 
               } catch (error) {
@@ -128,18 +129,12 @@ jobs:
             );
           } else {
             console.log(
-              'All product PDFs downloaded successfully'
+              'All available product PDFs downloaded successfully'
             );
           }
 
           console.log(
             `${catalog.length} products processed`
-          );
-
-          const expected = catalog.reduce(
-            (total, product) =>
-              total + 2 + (product.sdsPartB ? 1 : 0),
-            0
           );
 
           console.log(
@@ -149,7 +144,6 @@ jobs:
           console.log(
             `Successful downloads: ${expected - errors.length}`
           );
-
           NODE
 
       - name: Configure GitHub Pages
@@ -163,3 +157,4 @@ jobs:
       - name: Deploy website and PDFs
         id: deployment
         uses: actions/deploy-pages@v4
+
