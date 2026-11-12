@@ -90,7 +90,7 @@
     <h3>Products</h3>
     <div id="products"></div>
     <label id="showAllLabel" hidden><input id="showAll" type="checkbox"> Show all saved products for manual corrections</label>
-    <p class="note">Only products matched to the Jotform appear here after it is read. Review the matches against the original submission; 47 products are currently saved, including accessories without separate verified SDS links.</p>
+    <p class="note">Only products matched to the Jotform appear here after it is read. Review the matches against the original submission; 68 products are currently saved, including accessories without separate verified SDS links.</p>
 
     <label><input id="warranty" type="checkbox"> Include the template’s 25-year sample warranty</label>
     <button id="word">Download Word draft</button>
@@ -578,8 +578,9 @@ catalog.push(
     use: "Preformed waterproof outside-corner flashing",
     tds: base + "TDS/TDS-279.pdf",
     sds: null
-  },
-  
+  }
+);
+
 catalog.push(
   {
     id: "acrylpro",
@@ -833,8 +834,6 @@ catalog.push(
   }
 );
 
-);
-
 for (const p of catalog) {
   const label = document.createElement("label");
   const check = document.createElement("input");
@@ -845,7 +844,7 @@ for (const p of catalog) {
   $("products").append(label);
 
   // Epoxy grout products may have a separate Part B safety sheet.
-  for (const kind of ["tds", "sds", ...(p.sdsPartB ? ["sdsPartB"] : [])]) {
+  for (const kind of ["tds", "sds", ...(p.sdsPartB ? ["sdsPartB"] : []), ...(p.sdsPartC ? ["sdsPartC"] : [])]) {
     const line = document.createElement("label");
     const file = document.createElement("input");
     file.type = "file";
@@ -854,7 +853,8 @@ for (const p of catalog) {
     line.hidden = true; // Only show manual overrides for selected, linked sheets.
 
     const kindLabel = kind === "sdsPartB" ? "SDS Part B"
-      : kind === "sds" && p.sdsPartB ? "SDS Part A" : kind.toUpperCase();
+      : kind === "sdsPartC" ? "SDS Part C"
+      : kind === "sds" && (p.sdsPartB || p.sdsPartC) ? "SDS Part A" : kind.toUpperCase();
 
     if (p[kind]) {
       const link = document.createElement("a");
@@ -878,7 +878,7 @@ function refreshProductVisibility() {
   for (const p of catalog) {
     const check = $("pick-" + p.id);
     check.parentElement.hidden = !showAll && check.dataset.matched !== "true";
-    for (const kind of ["tds", "sds", ...(p.sdsPartB ? ["sdsPartB"] : [])]) {
+    for (const kind of ["tds", "sds", ...(p.sdsPartB ? ["sdsPartB"] : []), ...(p.sdsPartC ? ["sdsPartC"] : [])]) {
       $(p.id + "-" + kind).parentElement.hidden = !check.checked || !p[kind];
     }
   }
@@ -1062,7 +1062,7 @@ action("read", "readStatus", async () => {
     const check = $("pick-" + p.id);
     check.checked = matched;
     check.dataset.matched = String(matched);
-    for (const k of ["tds", "sds", ...(p.sdsPartB ? ["sdsPartB"] : [])]) {
+    for (const k of ["tds", "sds", ...(p.sdsPartB ? ["sdsPartB"] : []), ...(p.sdsPartC ? ["sdsPartC"] : [])]) {
       $(p.id + "-" + k).value = "";
     }
   }
@@ -1212,7 +1212,8 @@ action("build", "pdfStatus", async () => {
   for (const product of picks) {
     const documentKinds = [
       ...kinds.filter(kind => product[kind]),
-      ...(kinds.includes("sds") && product.sdsPartB ? ["sdsPartB"] : [])
+      ...(kinds.includes("sds") && product.sdsPartB ? ["sdsPartB"] : []),
+      ...(kinds.includes("sds") && product.sdsPartC ? ["sdsPartC"] : [])
     ];
     if (kinds.includes("sds") && !product.sds) {
       skipped.push(product.name + ": no verified SDS URL in catalog");
@@ -1223,7 +1224,10 @@ action("build", "pdfStatus", async () => {
     }
     for (const kind of documentKinds) {
       const title = product.name + " " +
-        (kind === "sdsPartB" ? "SDS Part B" : kind === "sds" && product.sdsPartB ? "SDS Part A" : kind.toUpperCase());
+        (kind === "sdsPartB" ? "SDS Part B"
+        : kind === "sdsPartC" ? "SDS Part C"
+        : kind === "sds" && (product.sdsPartB || product.sdsPartC) ? "SDS Part A"
+        : kind.toUpperCase());
       $("pdfStatus").textContent = "Adding " + title + "…";
       // A manual file is an optional override. Normally PDFs are served from
       // this GitHub Pages site (same origin), avoiding manufacturer CORS issues.
