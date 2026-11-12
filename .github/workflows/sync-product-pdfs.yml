@@ -1,0 +1,135 @@
+
+name: Sync product PDFs
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - index.html
+      - .github/workflows/sync-product-pdfs.yml
+  schedule:
+    - cron: "17 10 1 * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Check out site
+        uses: actions/checkout@v4
+
+      - name: Download product data sheets
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const { execFileSync } = require('node:child_process');
+          const path = require('node:path');
+
+          const html = fs.readFileSync('index.html', 'utf8');
+          const begin = html.indexOf('const base = ');
+          const end = html.indexOf('for (const p of catalog)', begin);
+
+          if (begin < 0 || end < 0) {
+            throw Error('Product catalog not found');
+          }
+
+          const catalog = vm.runInNewContext(
+            html.slice(begin, end) + '\ncatalog',
+            {},
+            {timeout: 2000}
+          );
+
+          if (!Array.isArray(catalog) || !catalog.length) {
+            throw Error('Product catalog is empty');
+          }
+
+          fs.mkdirSync('sheets', {recursive: true});
+
+          const errors = [];
+
+          for (const product of catalog) {
+            if (!/^[a-z0-9-]+$/.test(product.id)) {
+              throw Error('Invalid product ID');
+            }
+
+            for (const kind of ['tds', 'sds']) {
+              const url = product[kind];
+              const filename = `${product.id}-${kind}.pdf`;
+              const destination = path.join('sheets', filename);
+              const temporary = destination + '.tmp';
+
+              try {
+                if (!/^https:\/\/www\.custombuildingproducts\.com\//.test(url)) {
+                  throw Error('Invalid manufacturer URL');
+                }
+
+                execFileSync('curl', [
+                  '--fail',
+                  '--location',
+                  '--silent',
+                  '--show-error',
+                  '--retry', '3',
+                  '--connect-timeout', '20',
+                  '--max-time', '120',
+                  '--user-agent', 'Mozilla/5.0',
+                  '--output', temporary,
+                  url
+                ]);
+
+                const data = fs.readFileSync(temporary);
+
+                if (data.subarray(0, 5).toString('ascii') !== '%PDF-') {
+                  throw Error('Downloaded file is not a PDF');
+                }
+
+                fs.renameSync(temporary, destination);
+
+                console.log(`OK: ${filename}`);
+
+              } catch (error) {
+                try {
+                  fs.unlinkSync(temporary);
+                } catch (_) {}
+
+                console.error(`FAILED: ${filename}: ${error.message}`);
+                errors.push(filename);
+              }
+            }
+          }
+
+          if (errors.length) {
+            fs.writeFileSync(
+              'sheets/FAILED_DOWNLOADS.txt',
+              errors.join('\n') + '\n'
+            );
+            console.error('Failed sheets:', errors.join(', '));
+          } else {
+            console.log('All product PDFs downloaded successfully');
+          }
+
+          console.log(
+            `${catalog.length} products processed`
+          );
+          NODE
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload website and PDFs
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+
+      - name: Deploy website and PDFs
+        id: deployment
+        uses: actions/deploy-pages@v4
