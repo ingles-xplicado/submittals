@@ -90,7 +90,7 @@
     <h3>Products</h3>
     <div id="products"></div>
     <label id="showAllLabel" hidden><input id="showAll" type="checkbox"> Show all saved products for manual corrections</label>
-    <p class="note">Only products matched to the Jotform appear here after it is read. Review the matches against the original submission; ten products are currently saved.</p>
+    <p class="note">Only products matched to the Jotform appear here after it is read. Review the matches against the original submission; 47 products are currently saved, including accessories without separate verified SDS links.</p>
 
     <label><input id="warranty" type="checkbox"> Include the template’s 25-year sample warranty</label>
     <button id="word">Download Word draft</button>
@@ -236,6 +236,351 @@ catalog.push(
   }
 );
 
+
+// Grout, caulk, and epoxy products previously researched (18 catalog entries).
+catalog.push(
+  {
+    id: "solids-epoxy",
+    name: "100% Solids Epoxy Grout (DISCONTINUED)",
+    aliases: ["100% Solids Epoxy Grout"],
+    standard: "Refer to legacy TDS-174; discontinued",
+    use: "Legacy two-part epoxy grout",
+    tds: base + "TDS/TDS-174.pdf",
+    sds: uploads + "resources/f3041_100_solids_epoxy_grout_part_a_english_ghs-whmis_08-march-2016_11.pdf",
+    sdsPartB: uploads + "resources/100_solids_epoxy_grout_part_b_english_ghs-whmis_11-october-2013.pdf"
+  },
+  {
+    id: "ceg-ig",
+    name: "CEG-IG™ 100% Solids Industrial Grade Epoxy Grout",
+    aliases: ["CEG-IG 100% Solids Industrial Grade Epoxy Grout", "CEG IG Industrial Grade Epoxy Grout", "CEG-IG"],
+    standard: "ANSI A118.3",
+    use: "Industrial-grade chemical-resistant epoxy grout",
+    tds: base + "product-pdf?id=2044",
+    sds: uploads + "2021/08/CEG-IG100PercentSolidIndustrialGradeEpoxyGroutPartA_GHS-WHMIS_English_12-October_2017_10.pdf",
+    sdsPartB: uploads + "CEG-IG100PercentSolidIndustrialGradeEpoxyGroutPartB_GHS-WHMIS_English_01-June_2023_2.3.pdf"
+  },
+  {
+    id: "ceg-lite",
+    name: "CEG-Lite™ 100% Solids Commercial Epoxy Grout",
+    aliases: ["CEG-Lite 100% Solids Commercial Epoxy Grout", "CEG Lite Commercial Epoxy Grout", "CEG-Lite"],
+    standard: "ANSI A118.3",
+    use: "Lightweight commercial epoxy grout",
+    tds: base + "product-pdf?id=2036",
+    sds: uploads + "CEG-Lite100PercentSolidsCommercialEpoxyGroutPartA_GHS-WHMIS_English_29-September_2021_2.2.pdf",
+    sdsPartB: uploads + "CEG-Lite100PercentSolidsCommercialEpoxyGroutPartB_GHS-WHMIS_English_29-September_2021_2.3.pdf"
+  },
+  {
+    id: "commercial-silicone",
+    name: "CUSTOM® Commercial 100% Silicone Sealant",
+    aliases: ["CUSTOM Commercial 100% Silicone Sealant", "Commercial 100% Silicone Sealant"],
+    standard: "Refer to manufacturer TDS",
+    use: "Flexible silicone sealant for tile and stone movement joints",
+    tds: base + "product-pdf?id=2028",
+    sds: uploads + "2021/08/commercial100siliconesealant_ghs-whmis_english_06-april-2020_20.pdf"
+  },
+  {
+    id: "fusion-pro",
+    name: "Fusion Pro® Single Component® Grout",
+    aliases: ["Fusion Pro Single Component Grout", "Fusion Pro Grout"],
+    standard: "Refer to TDS-242",
+    use: "Ready-to-use stain-resistant grout",
+    tds: uploads + "2021/10/TDS-242.pdf",
+    sds: uploads + "2021/08/fusionprosinglecomponentgrout_ghs-whmis_english_12-november-2020_40.pdf"
+  },
+  {
+    id: "nonslump-epoxy-additive",
+    name: "Non-Slump Epoxy Additive",
+    aliases: ["Non Slump Epoxy Additive"],
+    standard: "Refer to TDS-188",
+    use: "Epoxy grout additive to improve non-slump performance",
+    tds: base + "TDS/TDS-188.pdf",
+    sds: uploads + "resources/non-slumpepoxyadditive_ghs-whmis_english_03-april-2017_20.pdf"
+  },
+  {
+    id: "grout-renew",
+    name: "Polyblend® Grout Renew",
+    aliases: ["PolyBlend Grout Renew", "Grout Renew"],
+    standard: "Refer to TDS-176",
+    use: "Acrylic grout colorant and sealer",
+    tds: base + "product-pdf?id=2039",
+    sds: uploads + "2021/08/polyblendgroutrenew_ghs-whmis_english_02-february-2018_22.pdf"
+  },
+  {
+    id: "polyblend-nonsanded",
+    name: "Polyblend® Non-Sanded Grout (Original)",
+    aliases: ["Polyblend Non-Sanded Grout", "PolyBlend Non Sanded Grout"],
+    standard: "ANSI A118.6",
+    use: "Traditional non-sanded cement grout",
+    tds: base + "TDS/TDS-130.pdf",
+    sds: uploads + "2021/08/polyblendnon-sandedgrout_ghs-whmis_english_10-november-2020_30.pdf"
+  },
+  {
+    id: "polyblend-sanded",
+    name: "Polyblend® Sanded Grout (Original)",
+    aliases: ["Polyblend Sanded Grout", "PolyBlend Sanded Grout"],
+    standard: "ANSI A118.6",
+    use: "Traditional sanded cement grout",
+    tds: base + "TDS/TDS-129.pdf",
+    sds: uploads + "2021/08/polyblendsandedgrout_ghs-whmis_english_10-november-2020_20.pdf"
+  },
+  {
+    id: "polyblend-white-dry",
+    name: "Polyblend® White Dry Grout",
+    aliases: ["Polyblend White Dry Grout"],
+    standard: "ANSI A118.6",
+    use: "Polymer-modified non-sanded white dry grout",
+    tds: base + "product-pdf?id=2034",
+    sds: uploads + "2021/08/polyblendwhitedrygrout_ghs-whmis_english_10-november-2020_20.pdf"
+  },
+  {
+    id: "prism",
+    name: "Prism® Ultimate Performance Grout",
+    aliases: ["Prism Ultimate Performance Grout", "Prism Cement Grout"],
+    standard: "Refer to TDS-128",
+    use: "Rapid-setting high-performance cement grout",
+    tds: uploads + "Prism%C2%AE-Ultimate-Performance-Grout-1-9-26-1.pdf",
+    sds: uploads + "2021/08/prismultimateperformancegrout_ghs-whmis_english_10-november-2020_30.pdf"
+  },
+  {
+    id: "saltillo",
+    name: "Saltillo Grout Mix",
+    aliases: ["Saltillo Grout Mix"],
+    standard: "Refer to TDS-131",
+    use: "Cement-based grout for wide terra-cotta and quarry tile joints",
+    tds: base + "product-pdf?id=2033",
+    sds: uploads + "2021/08/saltillogroutmix_ghs-whmis_english_10-november-2020_20.pdf"
+  },
+  {
+    id: "white-dry-nonsanded",
+    name: "White Dry Non-Sanded Grout",
+    aliases: ["White Dry Non Sanded Grout", "White Dry Non-Sanded Grout"],
+    standard: "ANSI A118.6",
+    use: "Non-sanded cement grout for narrow tile joints",
+    tds: base + "product-pdf?id=2035",
+    sds: uploads + "2021/08/whitedrynon-sandedgrout_ghs-whmis_english_10-november-2020_30.pdf"
+  },
+  {
+    id: "quikrete-mason-mix",
+    name: "QUIKRETE® Mason Mix",
+    aliases: ["QUIKRETE Mason Mix", "Quikrete Mason Mix"],
+    standard: "ASTM C270 / C1714; Type S",
+    use: "Preblended mortar for structural masonry",
+    tds: "https://www.quikrete.com/PDFs/DATA_SHEET-Mason%20Mix%201136.pdf",
+    sds: "https://www.quikrete.com/PDFs/SDS-C4-Masonry-Mortars.pdf"
+  },
+  {
+    id: "polyblend-plus-sanded",
+    name: "Polyblend® Plus Sanded Grout",
+    aliases: ["Polyblend Plus Sanded Grout", "PolyBlend Plus Sanded Grout"],
+    standard: "ANSI A118.7",
+    use: "Polymer-modified sanded cement grout",
+    tds: uploads + "Polyblend-Plus-TDS-8-14-26.pdf",
+    sds: uploads + "2021/08/polyblendplussandedgrout_ghs-whmis_english_10-november-2020_20.pdf"
+  },
+  {
+    id: "prism-scg",
+    name: "Prism® SCG Ultimate Performance Pre-Mixed Single Component® Grout",
+    aliases: ["Prism SCG Ultimate Performance Pre-Mixed Single Component Grout", "Prism SCG Premixed Grout", "Prism SCG"],
+    standard: "Refer to TDS-454",
+    use: "Ready-to-use high-performance single-component grout",
+    tds: base + "product-pdf?id=6982",
+    sds: uploads + "Prism%C2%AESCGUltimatePerformancePremixedGrout_GHS-WHMIS_English_12-October-2023_1.2.pdf"
+  },
+  {
+    id: "ceramic-caulk-sanded",
+    name: "Polyblend® Ceramic Tile Caulk — Sanded",
+    aliases: ["Polyblend Ceramic Tile Caulk Sanded", "Ceramic Tile Caulk Sanded"],
+    standard: "Refer to TDS-179",
+    use: "Sanded ceramic tile caulk",
+    tds: base + "product-pdf?id=2029",
+    sds: uploads + "2021/08/ceramictilecaulksanded_ghs-whmis_english_16-november-2020_30.pdf"
+  },
+  {
+    id: "ceramic-caulk-nonsanded",
+    name: "Polyblend® Ceramic Tile Caulk — Non-Sanded",
+    aliases: ["Polyblend Ceramic Tile Caulk Non-Sanded", "Ceramic Tile Caulk Non-Sanded"],
+    standard: "Refer to TDS-179",
+    use: "Non-sanded ceramic tile caulk",
+    tds: base + "product-pdf?id=2029",
+    sds: uploads + "2021/08/ceramictilecaulknon-sanded_ghs-whmis_english_16-november-2020_30.pdf"
+  }
+);
+
+// Additional surface preparation, membranes, and accessories (19 entries).
+catalog.push(
+  {
+    id: "redgard-fabric-membrane",
+    name: "RedGard® Fabric Membrane",
+    aliases: ["RedGard Fabric Membrane", "RedGard Fabric Membrane Roll"],
+    standard: "ANSI A118.10 and A118.12",
+    use: "Waterproofing and vapor-retarding sheet membrane for tiled wet areas",
+    tds: uploads + "RedGard-Fabric-Membrane-edits-11-4-26.pdf",
+    sds: uploads + "RedGardFabricMembrane_GHS-WHMIS_English_23-August-2021_1.0.pdf"
+  },
+  {
+    id: "redgard-uncoupling-mat",
+    name: "RedGard® Uncoupling Mat",
+    aliases: ["RedGard Uncoupling Mat"],
+    standard: "Refer to TDS-357",
+    use: "Waterproof uncoupling and crack-isolation mat for tile and stone",
+    tds: base + "TDS/TDS-357.pdf",
+    sds: uploads + "2021/08/RedGardUncouplingMat_GHS-WHMIS_English_13-June-16_10.pdf"
+  },
+  {
+    id: "scratch-coat-mortar",
+    name: "Scratch Coat Mortar",
+    aliases: ["CUSTOM Scratch Coat Mortar"],
+    standard: "Refer to TDS-198",
+    use: "Thin mortar bed underlayment over interior exterior-grade plywood",
+    tds: base + "TDS/TDS-198.pdf",
+    sds: uploads + "2021/08/scratchcoatmortar_ghs-whmis_english_09-november-2020_20.pdf"
+  },
+  {
+    id: "skim-coat-patch",
+    name: "Skim Coat & Patch Cement Underlayment",
+    aliases: ["Skim Coat and Patch Cement Underlayment", "Skim Coat & Patch"],
+    standard: "Refer to TDS-111",
+    use: "Fast-setting patching and smoothing underlayment",
+    tds: base + "TDS/TDS-111.pdf",
+    sds: uploads + "2021/08/skimcoatpatchcementunderlayment_ghs-whmis_english_10-november-2020_40.pdf"
+  },
+  {
+    id: "speedfinish",
+    name: "SpeedFinish™ Patching & Finishing Compound",
+    aliases: ["SpeedFinish Patching and Finishing Compound", "SpeedFinish Patching & Finishing Compound", "SpeedFinish"],
+    standard: "Refer to TDS-110",
+    use: "Fast-curing patching and skim-coat compound for floor preparation",
+    tds: uploads + "TDS-110-SpeedFinish-Patching-Finishing-Compound-English.pdf",
+    sds: uploads + "resources/speedfinishpatchingfinishingcompound_ghs-whmis_english_10-november-2020_50.pdf"
+  },
+  {
+    id: "thick-bed-bedding-mortar",
+    name: "Thick Bed Bedding Mortar",
+    aliases: ["CUSTOM Thick Bed Bedding Mortar"],
+    standard: "Refer to TDS-197",
+    use: "Preblended thick mortar bed for tile and natural stone",
+    tds: base + "TDS/TDS-197.pdf",
+    sds: uploads + "2021/08/thickbedbeddingmortar_ghs-whmis_english_09-november-2020_30.pdf"
+  },
+  {
+    id: "quikrete-floor-mud",
+    name: "QUIKRETE® Floor Mud",
+    aliases: ["QUIKRETE Floor Mud", "Floor Mud 1548"],
+    standard: "Refer to TDS-1548",
+    use: "Cement-based mortar bed for floors and shower pans",
+    tds: uploads + "DATA_SHEET-Floor-Mud-1548-81-82-002.pdf",
+    sds: uploads + "sds-c11-tile-products.pdf"
+  },
+  {
+    id: "waterproofing-membrane-mesh",
+    name: "Waterproofing and Anti-Fracture Membrane Mesh",
+    aliases: ["Waterproofing & Anti-Fracture Membrane Mesh"],
+    standard: "No standalone ANSI standard for mesh (TDS-238)",
+    use: "Alkali-resistant mesh tape reinforcing liquid membranes",
+    tds: uploads + "2021/10/TDS-238.pdf",
+    sds: null
+  },
+  {
+    id: "wonderboard-lite",
+    name: "WonderBoard® Lite Backerboard",
+    aliases: ["WonderBoard Lite Backerboard", "WonderBoard Lite"],
+    standard: "ANSI A118.9; ASTM C1325",
+    use: "Mesh-reinforced cement backerboard for tile and stone",
+    tds: uploads + "2021/10/TDS-266.pdf",
+    sds: uploads + "resources/wonderboardlite_ghs-whmis_english_10-november-2020_30.pdf"
+  },
+  {
+    id: "vinyl-pan-liner-5ft",
+    name: "40 Mil Vinyl Shower Pan Liner - 5 ft (legacy listing)",
+    aliases: ["Vinyl Pan Liner", "40 Mil Vinyl Shower Pan Liner", "Vinyl Shower Pan Liner"],
+    standard: "Refer to legacy 40-mil liner document; verify current product",
+    use: "Waterproof vinyl sheet liner for a full mortar-bed shower pan",
+    tds: base + "wp-content/themes/custombuildingproducts/product_pdf.php?id=2164",
+    sds: null
+  },
+  {
+    id: "cbp-232",
+    name: "CBP-232 Waterproof & Anti-Fracture Membrane",
+    aliases: ["CBP-232 Waterproofing and Anti-Fracture Membrane", "CBP 232 Waterproof & Anti-Fracture Membrane", "CBP-232"],
+    standard: "ANSI A118.10 and A118.12",
+    use: "Liquid-applied waterproofing and crack-isolation membrane",
+    tds: uploads + "CBP-232-Waterproofing-and-Anti-Fracture-Membrane-71626.pdf",
+    sds: uploads + "CBP232WaterproofAnti-FractureMembrane_GHS-WHMIS_English_13-March-2024_3.3.pdf"
+  },
+  {
+    id: "quikrete-sand-topping-mix",
+    name: "QUIKRETE® Sand/Topping Mix",
+    aliases: ["Quikrete Sand Topping Mix", "QUIKRETE Sand/Topping Mix", "Sand/Topping Mix 1103"],
+    standard: "ASTM C387 (see product TDS)",
+    use: "Sand-and-cement mix for thin concrete toppings and tile mortar beds",
+    tds: "https://www.quikrete.com/PDFs/DATA_SHEET-Sand-Topping%20Mix%201103.pdf",
+    sds: "https://www.quikrete.com/PDFs/SDS-C9%20General-Repair-Products.pdf"
+  },
+  {
+    id: "quikrete-deck-mud",
+    name: "QUIKRETE® Deck Mud",
+    aliases: ["Quikrete Deck Mud", "Deck Mud 154-50", "Deck Mud 154-76"],
+    standard: "ANSI A108.1A, Section 2.2.1 (referenced by manufacturer)",
+    use: "Mortar bed underlayment for floors, countertops, and tile",
+    tds: "https://www.quikrete.com/PDFs/DATA_SHEET-Deck%20Mud%20-%20154-50%20-76.pdf",
+    sds: "https://www.quikrete.com/PDFs/SDS-C9%20General-Repair-Products.pdf"
+  },
+  {
+    id: "quikrete-concrete-mix-1101",
+    name: "QUIKRETE® Concrete Mix (No. 1101)",
+    aliases: ["Quikrete High Strength Concrete Mix", "QUIKRETE Concrete Mix 1101"],
+    standard: "ASTM C387; 4,000 psi typical 28-day strength",
+    use: "General-purpose concrete mix for slabs, footings, and structural work",
+    tds: "https://www.quikrete.com/PDFs/DATA_SHEET-Concrete%20Mix%201101.pdf",
+    sds: "https://www.quikrete.com/PDFs/SDS-C1-Concretes.pdf"
+  },
+  {
+    id: "redgard-seam-tape",
+    name: "RedGard® Seam Tape",
+    aliases: ["RedGard Seam Tape"],
+    standard: "Refer to TDS-358",
+    use: "Seam and change-of-plane tape for RedGard sheet/mat installations",
+    tds: base + "product-pdf?id=664",
+    sds: null
+  },
+  {
+    id: "redgard-mixer-pipe-seal",
+    name: "RedGard® Fabric Membrane Mixer and Pipe Seal",
+    aliases: ["RedGard Fabric Membrane Mixer and Pipe Seal", "RedGard Fabric Membrane Mixer & Pipe Seal"],
+    standard: "Refer to TDS-280",
+    use: "Preformed waterproof seal for plumbing penetrations",
+    tds: base + "TDS/TDS-280.pdf",
+    sds: null
+  },
+  {
+    id: "waterproofing-reinforcing-fabric",
+    name: "Waterproofing and Anti-Fracture Reinforcing Fabric",
+    aliases: ["Waterproofing & Anti-Fracture Reinforcing Fabric"],
+    standard: "No standalone ANSI standard for fabric (TDS-551)",
+    use: "Alkali-resistant reinforcing fabric for liquid membranes",
+    tds: base + "product-pdf?id=7968",
+    sds: null
+  },
+  {
+    id: "redgard-inside-corner-seal",
+    name: "RedGard® Fabric Membrane Inside Corner Seal",
+    aliases: ["RedGard Fabric Membrane Inside Corner Seal"],
+    standard: "Refer to TDS-278",
+    use: "Preformed waterproof inside-corner flashing",
+    tds: base + "TDS/TDS-278.pdf",
+    sds: null
+  },
+  {
+    id: "redgard-outside-corner-seal",
+    name: "RedGard® Fabric Membrane Outside Corner Seal",
+    aliases: ["RedGard Fabric Membrane Outside Corner Seal"],
+    standard: "Refer to TDS-279",
+    use: "Preformed waterproof outside-corner flashing",
+    tds: base + "TDS/TDS-279.pdf",
+    sds: null
+  }
+);
+
 for (const p of catalog) {
   const label = document.createElement("label");
   const check = document.createElement("input");
@@ -245,19 +590,29 @@ for (const p of catalog) {
   label.append(check, " " + p.name);
   $("products").append(label);
 
-  for (const kind of ["tds", "sds"]) {
+  // Epoxy grout products may have a separate Part B safety sheet.
+  for (const kind of ["tds", "sds", ...(p.sdsPartB ? ["sdsPartB"] : [])]) {
     const line = document.createElement("label");
     const file = document.createElement("input");
     file.type = "file";
     file.accept = ".pdf";
     file.id = p.id + "-" + kind;
-    line.hidden = true; // Display sheet upload fields for selected products only.
-    const link = document.createElement("a");
-    link.href = p[kind];
-    link.target = "_blank";
-    link.rel = "noopener";
-    link.textContent = "Open official PDF";
-    line.append(p.name + " · " + kind.toUpperCase() + " · ", link, file);
+    line.hidden = true; // Only show manual overrides for selected, linked sheets.
+
+    const kindLabel = kind === "sdsPartB" ? "SDS Part B"
+      : kind === "sds" && p.sdsPartB ? "SDS Part A" : kind.toUpperCase();
+
+    if (p[kind]) {
+      const link = document.createElement("a");
+      link.href = p[kind];
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = "Open official PDF";
+      line.append(p.name + " · " + kindLabel + " · ", link, file);
+    } else {
+      file.disabled = true;
+      line.append(p.name + " · " + kindLabel + " · No verified document link");
+    }
     $("localSheets").append(line);
   }
 }
@@ -269,8 +624,8 @@ function refreshProductVisibility() {
   for (const p of catalog) {
     const check = $("pick-" + p.id);
     check.parentElement.hidden = !showAll && check.dataset.matched !== "true";
-    for (const kind of ["tds", "sds"]) {
-      $(p.id + "-" + kind).parentElement.hidden = !check.checked;
+    for (const kind of ["tds", "sds", ...(p.sdsPartB ? ["sdsPartB"] : [])]) {
+      $(p.id + "-" + kind).parentElement.hidden = !check.checked || !p[kind];
     }
   }
 }
@@ -443,12 +798,19 @@ action("read", "readStatus", async () => {
   const end = text.search(/Non-Custom Products in the Assembly/i);
   const productText = norm(text.slice(start >= 0 ? start : 0, end >= 0 ? end : undefined));
   for (const p of catalog) {
+    // Do not mistake a preformed RedGard corner/pipe accessory for the
+    // RedGard Fabric Membrane roll simply because the names share a prefix.
+    const matchText = p.id === "redgard-fabric-membrane"
+      ? productText.replace(/redgardfabricmembrane(?:insidecornerseal|outsidecornerseal|mixerandpipeseal)/g, "")
+      : productText;
     const matched = [p.name, ...p.aliases]
-      .some(alias => productText.includes(norm(alias)));
+      .some(alias => matchText.includes(norm(alias)));
     const check = $("pick-" + p.id);
     check.checked = matched;
     check.dataset.matched = String(matched);
-    for (const k of ["tds", "sds"]) $(p.id + "-" + k).value = "";
+    for (const k of ["tds", "sds", ...(p.sdsPartB ? ["sdsPartB"] : [])]) {
+      $(p.id + "-" + k).value = "";
+    }
   }
   $("showAllLabel").hidden = false;
   $("showAll").checked = false;
@@ -592,9 +954,22 @@ action("build", "pdfStatus", async () => {
   }
   await append(await frontFile.arrayBuffer());
   const ranges = [];
+  const skipped = [];
   for (const product of picks) {
-    for (const kind of [...kinds, ...(kinds.includes("sds") && product.sdsPartB ? ["sdsPartB"] : [])]) {
-      const title = product.name + " " + (kind === "sdsPartB" ? "SDS Part B" : kind.toUpperCase());
+    const documentKinds = [
+      ...kinds.filter(kind => product[kind]),
+      ...(kinds.includes("sds") && product.sdsPartB ? ["sdsPartB"] : [])
+    ];
+    if (kinds.includes("sds") && !product.sds) {
+      skipped.push(product.name + ": no verified SDS URL in catalog");
+    }
+    if (!documentKinds.length) {
+      throw Error("No requested documents are linked for " + product.name +
+        ". Select TDS as well, or review the product's documentation.");
+    }
+    for (const kind of documentKinds) {
+      const title = product.name + " " +
+        (kind === "sdsPartB" ? "SDS Part B" : kind === "sds" && product.sdsPartB ? "SDS Part A" : kind.toUpperCase());
       $("pdfStatus").textContent = "Adding " + title + "…";
       // A manual file is an optional override. Normally PDFs are served from
       // this GitHub Pages site (same origin), avoiding manufacturer CORS issues.
@@ -626,7 +1001,9 @@ action("build", "pdfStatus", async () => {
   }
   download(new Blob([await out.save()], {type:"application/pdf"}),
     filename() + " Submittal Package.pdf");
-  return "Package downloaded · " + out.getPageCount() + " pages\n\n" + ranges.join("\n");
+  return "Package downloaded · " + out.getPageCount() + " pages\n\n" +
+    ranges.join("\n") +
+    (skipped.length ? "\n\nNot attached (no verified SDS link):\n" + skipped.join("\n") : "");
 });
 </script>
 </body>
