@@ -1172,6 +1172,9 @@ action("read", "readStatus", async () => {
 
 // These changes target the supplied "blank 1 submittal.docx" layout.
 const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+const R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+const PKGREL = "http://schemas.openxmlformats.org/package/2006/relationships";
+const HYPERLINK_REL = R + "/hyperlink";
 function children(node, name) {
   return [...node.children].filter(e => e.namespaceURI === W && e.localName === name);
 }
@@ -1201,6 +1204,42 @@ function setCell(cell, text) {
 }
 function paragraphText(p) {
   return [...p.getElementsByTagNameNS(W, "t")].map(t => t.textContent).join("");
+}
+
+// Turn a product's name in the Word table into a genuine external hyperlink.
+// The document relationship is required: blue/underlined text alone is not clickable.
+function setProductTdsHyperlink(cell, name, relationId) {
+  const p = children(cell, "p")[0];
+  if (!p || !relationId) return;
+  const doc = cell.ownerDocument;
+  const oldRun = children(p, "r")[0];
+  const oldRPr = oldRun && children(oldRun, "rPr")[0];
+  const rPr = oldRPr ? oldRPr.cloneNode(true) : newW(doc, "rPr");
+
+  // Replace any existing color / underline settings from the blank template.
+  for (const prop of [...children(rPr, "color"), ...children(rPr, "u")]) {
+    prop.remove();
+  }
+  const color = newW(doc, "color");
+  color.setAttributeNS(W, "w:val", "0563C1");
+  rPr.append(color);
+  const underline = newW(doc, "u");
+  underline.setAttributeNS(W, "w:val", "single");
+  rPr.append(underline);
+
+  for (const child of [...p.children]) {
+    if (child.localName !== "pPr") child.remove();
+  }
+  const hyperlink = newW(doc, "hyperlink");
+  hyperlink.setAttributeNS(R, "r:id", relationId);
+  hyperlink.setAttributeNS(W, "w:history", "1");
+  const run = newW(doc, "r");
+  run.append(rPr);
+  const t = newW(doc, "t");
+  t.textContent = name;
+  run.append(t);
+  hyperlink.append(run);
+  p.append(hyperlink);
 }
 
 // Explicit Word formatting, rather than inheriting small italic styles from
@@ -1277,6 +1316,28 @@ action("word", "wordStatus", async () => {
   const xml = zip.file("word/document.xml")?.asText();
   if (!xml) throw Error("Choose a .docx Word file.");
   const doc = new DOMParser().parseFromString(xml, "application/xml");
+  const relsPath = "word/_rels/document.xml.rels";
+  const relsXml = zip.file(relsPath)?.asText();
+  if (!relsXml) throw Error("The selected Word template is missing document relationships.");
+  const relsDoc = new DOMParser().parseFromString(relsXml, "application/xml");
+  if (relsDoc.getElementsByTagName("parsererror").length)
+    throw Error("Could not read the Word template relationships.");
+  const existingIds = new Set([...relsDoc.documentElement.children]
+    .map(element => element.getAttribute("Id")));
+  let nextRelationshipId = 1;
+  function addTdsLink(url) {
+    if (typeof url !== "string" || !/^https:\/\//i.test(url)) return null;
+    let id;
+    do { id = "rId" + nextRelationshipId++; } while (existingIds.has(id));
+    existingIds.add(id);
+    const relationship = relsDoc.createElementNS(PKGREL, "Relationship");
+    relationship.setAttribute("Id", id);
+    relationship.setAttribute("Type", HYPERLINK_REL);
+    relationship.setAttribute("Target", url);
+    relationship.setAttribute("TargetMode", "External");
+    relsDoc.documentElement.append(relationship);
+    return id;
+  }
   const body = doc.getElementsByTagNameNS(W, "body")[0];
   const ps = children(body, "p");
   const tables = children(body, "tbl");
@@ -1324,6 +1385,8 @@ action("word", "wordStatus", async () => {
     const row = model.cloneNode(true);
     const cells = children(row, "tc");
     [p.name, p.standard, p.use].forEach((v,i) => setCell(cells[i], v));
+    // Link only the product name; keep standards and uses as ordinary text.
+    setProductTdsHyperlink(cells[0], p.name, addTdsLink(p.tds));
     tables[1].append(row);
   }
 
@@ -1344,6 +1407,7 @@ action("word", "wordStatus", async () => {
     }
   }
   zip.file("word/document.xml", new XMLSerializer().serializeToString(doc));
+  zip.file(relsPath, new XMLSerializer().serializeToString(relsDoc));
   download(zip.generate({
     type: "blob",
     mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
