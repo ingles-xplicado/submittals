@@ -1203,6 +1203,67 @@ function paragraphText(p) {
   return [...p.getElementsByTagNameNS(W, "t")].map(t => t.textContent).join("");
 }
 
+// Explicit Word formatting, rather than inheriting small italic styles from
+// the blank template. Font sizes below are measured in half-points (22 = 11pt).
+function styleWordParagraph(p, options = {}) {
+  const doc = p.ownerDocument;
+  const { size = 22, left = null, right = null, line = null } = options;
+  let pPr = children(p, "pPr")[0];
+  if (!pPr) {
+    pPr = newW(doc, "pPr");
+    p.insertBefore(pPr, p.firstChild);
+  }
+
+  if (left !== null) {
+    let ind = children(pPr, "ind")[0];
+    if (!ind) pPr.append(ind = newW(doc, "ind"));
+    ind.setAttributeNS(W, "w:left", String(left));
+    ind.setAttributeNS(W, "w:firstLine", "0");
+    ind.removeAttributeNS(W, "hanging");
+    if (right !== null) ind.setAttributeNS(W, "w:right", String(right));
+  }
+
+  if (line !== null) {
+    let spacing = children(pPr, "spacing")[0];
+    if (!spacing) pPr.append(spacing = newW(doc, "spacing"));
+    spacing.setAttributeNS(W, "w:line", String(line));
+    spacing.setAttributeNS(W, "w:lineRule", "atLeast");
+  }
+
+  // Keep text left-aligned even if the template's paragraph style changes.
+  let jc = children(pPr, "jc")[0];
+  if (!jc) pPr.append(jc = newW(doc, "jc"));
+  jc.setAttributeNS(W, "w:val", "left");
+
+  function applyRunFormat(rPr) {
+    function tag(name, attrs = {}) {
+      let el = children(rPr, name)[0];
+      if (!el) rPr.append(el = newW(doc, name));
+      for (const [key, val] of Object.entries(attrs)) {
+        el.setAttributeNS(W, "w:" + key, String(val));
+      }
+    }
+    tag("rFonts", { ascii: "Arial", hAnsi: "Arial", cs: "Arial" });
+    tag("b", { val: "1" });
+    tag("bCs", { val: "1" });
+    tag("i", { val: "0" });
+    tag("iCs", { val: "0" });
+    tag("sz", { val: String(size) });
+    tag("szCs", { val: String(size) });
+    tag("spacing", { val: "0" });
+  }
+
+  let paragraphRunProps = children(pPr, "rPr")[0];
+  if (!paragraphRunProps) pPr.append(paragraphRunProps = newW(doc, "rPr"));
+  applyRunFormat(paragraphRunProps);
+
+  for (const run of children(p, "r")) {
+    let rPr = children(run, "rPr")[0];
+    if (!rPr) run.insertBefore(rPr = newW(doc, "rPr"), run.firstChild);
+    applyRunFormat(rPr);
+  }
+}
+
 action("word", "wordStatus", async () => {
   const template = $("templateFile").files[0];
   if (!template) throw Error("Choose the blank CBP Word template in step 1.");
@@ -1231,20 +1292,26 @@ action("word", "wordStatus", async () => {
   ].filter(Boolean).join("\n"));
 
   const contactRows = children(tables[0], "tr");
-  [value("rep"), value("email"), value("phone")].forEach((v,i) =>
-    setCell(children(contactRows[i], "tc")[0], v));
+  [value("rep"), value("email"), value("phone")].forEach((v, i) => {
+    const cell = children(contactRows[i], "tc")[0];
+    setCell(cell, v);
+    styleWordParagraph(children(cell, "p")[0], { size: 22, line: 260 });
+  });
 
   let props = children(ps[9], "pPr")[0];
   if (!props) ps[9].prepend(props = newW(doc, "pPr"));
   let space = children(props, "spacing")[0];
   if (!space) props.append(space = newW(doc, "spacing"));
   space.setAttributeNS(W, "w:before", "300");
+  styleWordParagraph(ps[9], { size: 22, left: 540, right: 504, line: 270 });
 
   const kinds = ["tds", "sds"].filter(k => $(k).checked);
   const contents = ["Suggested installation system and project reference"];
   if ($("warranty").checked) contents.push("Sample warranty");
   if (kinds.length) contents.push("Product documentation: " + kinds.map(k => k.toUpperCase()).join(" and "));
   setParagraph(ps[10], contents.join("\n"));
+  // Align every package-list line with the heading inside the page border.
+  styleWordParagraph(ps[10], { size: 22, left: 540, right: 504, line: 280 });
   setParagraph(ps[19], "Project: " + value("project"));
   setParagraph(ps[20], "RE: " + value("application"));
   setParagraph(ps[26], value("term") ? "Requested warranty term: " + value("term") + " years." : "");
